@@ -26,15 +26,19 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=3)
     parser.add_argument('--modelname', '-m', type=str, default='11')
-    parser.add_argument('--steps', '-st', type=int, default=2500)
-    parser.add_argument('--steps_tune', '-stt', type=int, default=1500)
+    # parser.add_argument('--steps', '-st', type=int, default=2500)
+    # parser.add_argument('--steps_tune', '-stt', type=int, default=1500)
+
+    parser.add_argument('--steps', '-st', type=int, default=2000)
+    parser.add_argument('--steps_tune', '-stt', type=int, default=1200)
+
     parser.add_argument('--covariate', '-c', type=str, default='Bi3itemCDM')
-    parser.add_argument('--exp', '-e', type=int, default=1)
     parser.add_argument('--hierarchical', '-hh', type=str, default='True')
     parser.add_argument('--task', '-tt', type=str, default='both')
     parser.add_argument('--subset', '-sub', type=str, default='all')
     parser.add_argument('--covariatemask', '-cm', type=str, default='None')
-    parser.add_argument('--task_type', '-ttype', type=str, default='NoMagVersion') #MagVersion, MagVersionBoth or NoMagVersion
+    parser.add_argument('--exp', '-e', type=int, default=2)
+    parser.add_argument('--task_type', '-ttype', type=str, default='MagVersion') #MagVersion, MagVersionBoth or NoMagVersion
     parser.add_argument('--iterate_models', '-itm', type=bool, default=True)
 
     args = parser.parse_args()
@@ -45,7 +49,6 @@ def main():
     elif args.task_type == 'MagVersion' or args.task_type == 'MagVersionBoth':
         args.exp = 2
 
-    # define project root and data directory
     # extract data
     if args.exp == 1: # Experiment with no reward magnitudes
         pkl_path = '../../data/reversal_task/prl_nomag_data_model_alligned.pkl'
@@ -73,9 +76,9 @@ def main():
     elif (args.iterate_models == True):
 
         if args.task_type == 'MagVersion':
-            args.one_task_only = False
+            args.one_task_only = True
             # models = [str(i) for i in range(1, 10)]  # for model comparison, run model 1 to model 10
-            models = ['9']
+            models = ['9']   # winning model for this experiment
         elif args.task_type == 'MagVersionBoth':
             args.one_task_only = False
             # models = [str(i) for i in range(1, 13)]
@@ -92,6 +95,7 @@ def main():
 
             model_params = ModelParams.ModelParams(args)
             params = model_params.get_params()
+            print(params)
             fit_model(args,params,data)
 
 

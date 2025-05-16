@@ -143,19 +143,19 @@ def add_covariate_to_hyper_prior(u_both_total,
 
         # broadcast by person and
         u_both_PC1_broad = T.transpose(u_PC1*T.as_tensor_variable(C[stem1+'_both']))
-        # u_both_PC1_broad = T.transpose(u_PC1 * T.as_tensor_variable(C[stem1]))
+
         if includes_subjs_with_one_task:
             u_rew_only_PC1_broad = T.transpose(u_PC1[rew_slice]*T.as_tensor_variable(C[stem1+'_rew_only']))
             u_pain_only_PC1_broad = T.transpose(u_PC1[pain_slice]*T.as_tensor_variable(C[stem1+'_pain_only']))
 
         u_both_PC2_broad = T.transpose(u_PC2*T.as_tensor_variable(C[stem2+'_both']))
-        # u_both_PC2_broad = T.transpose(u_PC2 * T.as_tensor_variable(C[stem2]))
+
         if includes_subjs_with_one_task:
             u_rew_only_PC2_broad = T.transpose(u_PC2[rew_slice]*T.as_tensor_variable(C[stem2+'_rew_only']))
             u_pain_only_PC2_broad = T.transpose(u_PC2[pain_slice]*T.as_tensor_variable(C[stem2+'_pain_only']))
 
         u_both_PC3_broad = T.transpose(u_PC3*T.as_tensor_variable(C[stem3+'_both']))
-        # u_both_PC3_broad = T.transpose(u_PC3 * T.as_tensor_variable(C[stem3]))
+
         if includes_subjs_with_one_task:
             u_rew_only_PC3_broad = T.transpose(u_PC3[rew_slice]*T.as_tensor_variable(C[stem3+'_rew_only']))
             u_pain_only_PC3_broad = T.transpose(u_PC3[pain_slice]*T.as_tensor_variable(C[stem3+'_pain_only']))
@@ -176,10 +176,7 @@ def add_covariate_to_hyper_prior(u_both_total,
             u_rew_only_total+=u_rew_only_PC3_broad
             u_pain_only_total+=u_pain_only_PC3_broad
 
-
-
-
-    return(u_both_total,u_rew_only_total,u_pain_only_total)
+    return u_both_total,u_rew_only_total,u_pain_only_total
 
 
 
@@ -250,7 +247,8 @@ def create_model_base(X, # observed stuff
         else:
             Nrewonly=0
             Npainonly=0
-            Nboth = Nboth  #was NN previously for task with rewardMag and NoMag
+            Nboth = Nboth
+
 
         if u_covariate_mask is None:
             u_covariate_mask=np.ones((len(params),1))
