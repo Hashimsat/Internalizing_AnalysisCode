@@ -3,10 +3,12 @@
 
 import pandas as pd
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from lab_scr_analysis.utils import merge_with_exclusions
 from lab_scr_analysis.config import game_data_variables, excluded_participants
 from lab_scr_analysis.scr_data_analysis_updated import analyse_scr_data
@@ -20,25 +22,25 @@ from functions.util_functions import qns_factor_preprocessing, cm2inch, label_su
 # -----------------
 # 1. Load data
 # -----------------
-figure_folder = '../figures/'
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+figure_folder = base_dir + '/figures/'
 
 # Load model data and behavioral data
-model_data = pd.read_csv("../data/lab_study/model_PEAlphaValence_Overall.csv")
-model_data_shocks = pd.read_csv("../data/lab_study/model_PEAlphaValence_Shock.csv")
-model_data_screams = pd.read_csv("../data/lab_study/model_PEAlphaValence_Scream.csv")
+model_data = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Overall.csv'))
+model_data_shocks = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Shock.csv'))
+model_data_screams = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Scream.csv'))
 
-df_predator = pd.read_csv("../data/lab_study/df_predator_exp7.csv")
+df_predator = pd.read_csv(os.path.join(base_dir, 'data/lab_study/df_predator_exp7.csv'))
 
 # Load questionnaire data
-factor_scores = pd.read_csv("../data/lab_study/factor_scores_exp7.csv")
-qns_totalscore = pd.read_csv("../data/lab_study/qns_data_exp7.csv", sep=';')
+factor_scores = pd.read_csv(os.path.join(base_dir, 'data/lab_study/factor_scores_exp7.csv'))
+qns_totalscore = pd.read_csv(os.path.join(base_dir, 'data/lab_study/qns_data_exp7.csv'), sep=';')
 
 
 # Load scr data
-df_all = pd.read_csv('../data/lab_study/all_data_zscored_exp7.csv')
+df_all = pd.read_csv(os.path.join(base_dir, 'data/lab_study/all_data_zscored_exp7.csv'))
 df_all_epochs = create_average_epochs_dataframe(df_all, '128', *game_data_variables)
 df_all_epochs_miss = df_all_epochs[df_all_epochs['hit_miss'] == 'miss']
-
 
 # -----------------
 # 2. Preprocess behavioral and model data

@@ -2,14 +2,10 @@
 # Python env: 'reversal_learning_env
 
 import sys
-import sys
 import os
 from pathlib import Path
 
-#Pymc
-import pymc3 as pm
 import theano
-import theano.tensor as T
 from fit_model_to_dataset_allTasks import fit_model
 
 theano.config.optimizer = 'fast_compile'
@@ -19,6 +15,7 @@ from reversal_task_model.model_code.model_base import *
 import ModelParams
 
 import argparse
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 def main():
     # This python function is a wrapper used to fit behavioral models to data.
@@ -50,15 +47,16 @@ def main():
         args.exp = 2
 
     # extract data
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
     if args.exp == 1: # Experiment with no reward magnitudes
-        pkl_path = '../../data/reversal_task/prl_nomag_data_model_alligned.pkl'
+        pkl_path = os.path.join(base_dir, 'data/reversal_task/prl_nomag_data_model_alligned.pkl')
 
     elif args.exp==2: # reversal learning task with reward magnitudes, either withor without loss domain
         if args.task_type == 'MagVersion': # task that only had a reward domain
-            pkl_path = '../../data/reversal_task/prl_rewardmag_data_model_alligned.pkl'
+            pkl_path = os.path.join(base_dir, 'data/reversal_task/prl_rewardmag_data_model_alligned.pkl')
 
         elif args.task_type == 'MagVersionBoth': # task that had both reward and loss domain
-            pkl_path = '../../data/reversal_task/prl_rewardloss_data_model_alligned.pkl'
+            pkl_path = os.path.join(base_dir, 'data/reversal_task/prl_rewardloss_data_model_alligned.pkl')
 
     with open(pkl_path,'rb') as f:
             data = pickle.load(f)

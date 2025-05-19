@@ -2,6 +2,7 @@
 # Environment: predator_task_env
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,17 +10,18 @@ import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
 import seaborn as sns
 from functions.util_functions import cm2inch, label_subplots, plot_image
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # -----------------
 # 1. Load data
 # -----------------
-
-figure_folder = '../figures/'
-df_vkf_sim = pd.read_csv("../data/reversal_task/VKF_Lambda0.1_v0.1_w0.05_Sim.csv")
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+figure_folder = base_dir + '/figures/'
+df_vkf_sim = pd.read_csv(os.path.join(base_dir, 'data/reversal_task/VKF_Lambda0.1_v0.1_w0.05_Sim.csv'))
 
 # Picture paths
-path = ["../figures/generated_anims/Stimulus_grey_noText.png", "../figures/generated_anims/Choice_grey_noText.png",
-        "../figures/generated_anims/Result_grey_noText.png"]
+path = [base_dir + '/figures/generated_anims/Stimulus_grey_noText.png', base_dir + '/figures/generated_anims/Choice_grey_noText.png',
+        base_dir + '/figures/generated_anims/Result_grey_noText.png']
 
 # -----------------
 # 2. Prepare figure

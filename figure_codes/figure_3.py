@@ -6,6 +6,7 @@ from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
 import numpy as np
 import pandas as pd
 import os
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.gridspec as gridspec
@@ -13,16 +14,18 @@ import seaborn as sns
 from scipy.stats import zscore
 from functions.util_functions import CircularDistance_Array, cm2inch, label_axes, add_text, compute_median_iqr
 from functions.plotting_functions import plot_x_vs_y_robust
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # -----------------
 # 1. Load data
 # -----------------
-figure_folder = '../figures/'
-img_path = "../figures/generated_anims/Full_figure_noText.png"
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+figure_folder = base_dir + "/figures/"
+img_path = base_dir + "/figures/generated_anims/Full_figure_noText.png"
 
-df_model = pd.read_csv("../data/predator_task/sim_df_bayesian_model_300tr.csv")
-df_endquiz = pd.read_csv("../data/predator_task/predator_endquiz_data.csv")
-factor_scores = pd.read_csv('../data/factor_analysis/factor_scores.csv')
+df_model = pd.read_csv(os.path.join(base_dir, 'data/predator_task/sim_df_bayesian_model_300tr.csv'))
+df_endquiz = pd.read_csv(os.path.join(base_dir, 'data/predator_task/predator_endquiz_data.csv'))
+factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
 # -----------------
 # 2. Preprocess data
@@ -38,6 +41,7 @@ df_endquiz = df_endquiz[df_endquiz['Gender'] != 3]
 # merge with factor scores
 df_endquiz = df_endquiz.merge(df_factor, on='subjectID')
 df_endquiz['g_z'] = zscore(df_endquiz['g'])
+df_endquiz['IC02_z'] = zscore(df_endquiz['IC02'])
 
 # -----------------
 # 2. Prepare figure

@@ -15,6 +15,8 @@ if __name__ == '__main__':
     import random
     from functions.util_functions import qns_factor_preprocessing
     import os
+    import sys
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
     # Control random number generator for reproducible results
     seed_val = 125
@@ -24,11 +26,12 @@ if __name__ == '__main__':
     # -----------------
     # 1. Load data
     # -----------------
-    df = pd.read_csv("../data/predator_task/df_predator_4expdata_combined.csv")
-    qns_totalscore = pd.read_csv("../data/factor_analysis/questionnaires_totalscores_subscales.csv", sep=',')
-    factor_scores = pd.read_csv('../data/factor_analysis/factor_scores.csv')
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    df = pd.read_csv(os.path.join(base_dir, "data/predator_task/df_predator_4expdata_combined.csv"))
+    qns_totalscore = pd.read_csv(os.path.join(base_dir, "data/factor_analysis/questionnaires_totalscores_subscales.csv"), sep=',')
+    factor_scores = pd.read_csv(os.path.join(base_dir,'data/factor_analysis/factor_scores.csv'))
 
-    data_folder = "../data/predator_task/"
+    data_folder = base_dir + "data/predator_task/"
 
     # --------------
     # 2. Preprocess data

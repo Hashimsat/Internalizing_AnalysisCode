@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 import os
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
@@ -13,20 +14,21 @@ from functions.util_functions import cm2inch, label_subplots,label_axes, compute
 import seaborn as sns
 from scipy.stats import zscore
 import pickle
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.prl_plotting_functions import plot_param_posterior_distribution_onesubplot,plot_factor_errorbar, param_by_factor_score,extract_distribution_mean_hdpis
 from functions.prl_descriptive_functions import performance_prl
 
 # -----------------
 # 1. Load data
 # -----------------
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+figure_folder = base_dir + '/figures/'
+qns_totalscore = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_totalscores_subscales.csv'))
+factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
-figure_folder = '../figures/'
-qns_totalscore = pd.read_csv('../data/factor_analysis/questionnaires_totalscores_subscales.csv')
-factor_scores = pd.read_csv('../data/factor_analysis/factor_scores.csv')
-
-pickle_filepath = f"../data/reversal_task/prl_nomag_model6_covariate=Bi3itemCDM_date=2025_1_14_samples=2500tune=1200_seed=3_exp=3.pkl"
-data_path = "../data/reversal_task/prl_nomag_model_data.pkl"
-df_prl = pd.read_csv("../data/reversal_task/df_prl_NoMag_AllData.csv")
+pickle_filepath = base_dir + '/data/reversal_task/PRL_NoMag_model6_covariate=Bi3itemCDM_date=2025_1_14_samples=2500tune=1200_seed=3_exp=3.pkl'
+data_path = base_dir + '/data/reversal_task/PRL_NoMag_model_data.pkl'
+df_prl = pd.read_csv(os.path.join(base_dir, 'data/reversal_task/df_prl_NoMag_AllData.csv'))
 
 # -------------------
 # 2. Preprocess data

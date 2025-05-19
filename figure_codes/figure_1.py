@@ -1,6 +1,7 @@
 # Hypotheses figure
 # Environment: predator_task_env
 
+from functions.util_functions import cm2inch, label_axes, plot_opened_image_with_text
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -8,7 +9,8 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
-from functions.util_functions import cm2inch, label_axes, plot_opened_image_with_text
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 # -----------------
@@ -16,13 +18,16 @@ from functions.util_functions import cm2inch, label_axes, plot_opened_image_with
 # -----------------
 
 # Load normative learning simulation
-df_norm = pd.read_csv("../data/predator_task/simulation_normative_learning.csv")
-figure_folder = "../figures/"
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+df_norm = pd.read_csv(os.path.join(base_dir, "data/predator_task/simulation_normative_learning.csv"))
+figure_folder = base_dir + '/figures/'
 
 # Load path to animated figures
 
-path = ['figures/generated_anims/Illustration_Left_noText.png',
-        'figures/generated_anims/Illustration_Right_noText.png']
+path = [os.path.join(base_dir, p) for p in [
+    'figures/generated_anims/Illustration_Left_noText.png',
+    'figures/generated_anims/Illustration_Right_noText.png'
+]]
 
 # -----------------
 # 2. Prepare figure

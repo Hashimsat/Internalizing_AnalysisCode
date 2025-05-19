@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import zscore
 import os
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
@@ -12,22 +13,23 @@ import seaborn as sns
 from functions.util_functions import cm2inch, label_subplots,medianprops, qns_factor_preprocessing, compute_median_iqr
 from scipy import stats
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_boxplots
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # -----------------
 # 1. Load data
 # -----------------
-figure_folder = '../figures/'
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+figure_folder = base_dir + '/figures/'
 
-ml_data = pd.read_csv("../data/predator_task/df_predator_4exp_modelresults.csv")
-df_fdr = pd.read_csv("../data/predator_task/predator_AllModelParams_internalizingRegression_FDR.csv")
+ml_data = pd.read_csv(os.path.join(base_dir, 'data/predator_task/df_predator_4exp_modelresults.csv'))
+df_fdr = pd.read_csv(os.path.join(base_dir, 'data/predator_task/predator_AllModelParams_internalizingRegression_FDR.csv'))
 
-qns_totalscore = pd.read_csv('../data/factor_analysis/questionnaires_totalscores_subscales.csv')
-factor_scores = pd.read_csv('../data/factor_analysis/factor_scores.csv')
+qns_totalscore = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_totalscores_subscales.csv'))
+factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
 # Data for example participant figure
-df_example = pd.read_csv("../data/predator_task/example_participant_data.csv")
-df_normative = pd.read_csv("../data/predator_task/simulated_normative_learning_fig5.csv")
-
+df_example = pd.read_csv(os.path.join(base_dir, 'data/predator_task/example_participant_data.csv'))
+df_normative = pd.read_csv(os.path.join(base_dir, 'data/predator_task/simulated_normative_learning_fig5.csv'))
 
 # -----------------
 # 2. Preprocess data

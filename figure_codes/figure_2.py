@@ -5,9 +5,11 @@
 import numpy as np
 import pandas as pd
 import os
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import qns_factor_preprocessing, cm2inch, label_subplots
 from scipy.stats import pearsonr
 
@@ -16,12 +18,13 @@ from scipy.stats import pearsonr
 # 1. Load data
 # -----------------
 
-qns_itemdata = pd.read_csv('../data/factor_analysis/questionnaires_itemdata.csv', sep=';')
-qns_totalscore = pd.read_csv('../data/factor_analysis/questionnaires_totalscores_subscales.csv')
-factor_scores = pd.read_csv('../data/factor_analysis/factor_scores.csv')
-factor_loadings = pd.read_csv('../data/factor_analysis/factor_loadings.csv')
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+qns_itemdata = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_itemdata.csv'), sep=';')
+qns_totalscore = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_totalscores_subscales.csv'))
+factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
+factor_loadings = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_loadings.csv'))
 
-figure_folder = '../figures/'
+figure_folder = base_dir + '/figures/'
 # -----------------
 # 2. Preprocess qns and factor data
 # -----------------

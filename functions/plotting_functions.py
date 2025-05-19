@@ -103,8 +103,8 @@ def plot_x_vs_y_robust(df,x,y,ax,legend_txt=None,xlabel=None,ylabel=None,title=F
     df['var_x_z'] = zscore(df[x])
     df['var_y_z'] = zscore(df[y])
 
-    x_temp = x.replace('.','')
-    var_x_z = x_temp + '_z'
+    var_x_z = 'var_x_z'
+
 
     exog = df[['var_x_z','Age_z','Gender']]
     exog = sm.add_constant(exog)
