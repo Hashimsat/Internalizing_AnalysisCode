@@ -1,4 +1,4 @@
-name: Gagne_env
+name: factor_analysis_env
 channels:
   - defaults
 dependencies:
@@ -253,4 +253,4 @@ dependencies:
     - scipy==1.7.3
     - statsmodels==0.13.5
     - typing-extensions==4.7.1
-prefix: /Users/hashim/opt/anaconda3/envs/Gagne_env
+
