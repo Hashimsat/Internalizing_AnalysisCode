@@ -12,9 +12,9 @@ import matplotlib.ticker as ticker
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 from scipy.stats import zscore
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import CircularDistance_Array, cm2inch, label_axes, add_text, compute_median_iqr
 from functions.plotting_functions import plot_x_vs_y_robust
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # -----------------
 # 1. Load data

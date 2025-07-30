@@ -9,14 +9,14 @@ import numpy as np
 if __name__ == '__main__':
 
     import pandas as pd
-    from RegVars_Predator import RegVars
-    from RegressionChildPredator import RegressionChildPredator
-    from al_simulation_rbm import simulation
     import random
-    from functions.util_functions import qns_factor_preprocessing
     import os
     import sys
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from RegVars_Predator import RegVars
+    from RegressionChildPredator import RegressionChildPredator
+    from al_simulation_rbm import simulation
+    from functions.util_functions import qns_factor_preprocessing
 
     # Control random number generator for reproducible results
     seed_val = 125
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     qns_totalscore = pd.read_csv(os.path.join(base_dir, "data/factor_analysis/questionnaires_totalscores_subscales.csv"), sep=',')
     factor_scores = pd.read_csv(os.path.join(base_dir,'data/factor_analysis/factor_scores.csv'))
 
-    data_folder = base_dir + "data/predator_task/"
+    data_folder = base_dir + "/data/predator_task/"
 
     # --------------
     # 2. Preprocess data
@@ -41,9 +41,6 @@ if __name__ == '__main__':
 
     # Merge predator data with qns data,so we only have participants that completed both the questionnaire and the tasks
     df = df.merge(df_qnstotal_subset, on='subjectID')
-
-    # Extract subject IDs
-    Subjects = pd.unique(df['subjectID'])
 
     # sort values by block number and trial number for each participant
     df = df.sort_values(by=['subjectID', 'BlockNumber', 'trialNumber']).reset_index()
@@ -89,7 +86,6 @@ if __name__ == '__main__':
 
     # Convert PE to radians
     df['PredictionError'] = np.deg2rad(df['PredictionError'])
-    df_sim['delta_t'] = np.deg2rad(df_sim['delta_t'])
 
     # Recode valence to [-1,1] format
     df.loc[df['HitMiss'] == 0, 'HitMiss'] = -1

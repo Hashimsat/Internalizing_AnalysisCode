@@ -1,6 +1,6 @@
 import mne
 import numpy as np
-from config import epoch_start, epoch_end, baseline_start, baseline_end
+from lab_scr_analysis.config import epoch_start, epoch_end, baseline_start, baseline_end
 
 
 def load_physiological_data(file):

@@ -8,12 +8,11 @@ import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing
-
 from functions.predator_descriptive_functions import EstimationError_overall, PerseverationRate_overall, SingleTrialLR_overall, RT_InitConf_overall, combine_descriptive_with_factor_scores
 from functions.LR_bins_internalizing import learning_rate_descriptive_internalizing
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_descriptive_boxplots
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 # -----------------

@@ -10,10 +10,11 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
 import seaborn as sns
-from functions.util_functions import cm2inch, label_subplots,medianprops, qns_factor_preprocessing, compute_median_iqr
 from scipy import stats
-from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_boxplots
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from functions.util_functions import cm2inch, label_subplots,medianprops, qns_factor_preprocessing, compute_median_iqr
+from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_boxplots
+
 
 # -----------------
 # 1. Load data

@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 
-sys.path.append(os.path.abspath('/Users/hashim/PhD/PhD Project/Code and Data/Trait Anxiety Paper Figures/LabStudy/SCR_Analysis/'))
-from config import settings_study_1, settings_study_2
+from lab_scr_analysis.config import settings_study_1, settings_study_2
 
 
 def create_directories(directories):
