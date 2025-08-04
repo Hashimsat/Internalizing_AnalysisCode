@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
 import matplotlib.ticker as ticker
-from functions.util_functions import cm2inch, label_subplots,label_axes, compute_median_iqr, qns_factor_preprocessing, compute_test_statistic
 import seaborn as sns
 from scipy.stats import zscore
 import pickle
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from functions.util_functions import cm2inch, label_subplots,label_axes, compute_median_iqr, qns_factor_preprocessing, compute_test_statistic
 from functions.prl_plotting_functions import plot_param_posterior_distribution_onesubplot,plot_factor_errorbar, param_by_factor_score,extract_distribution_mean_hdpis
 from functions.prl_descriptive_functions import performance_prl
 

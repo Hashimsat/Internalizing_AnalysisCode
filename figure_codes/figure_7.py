@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
 import seaborn as sns
-from functions.util_functions import cm2inch, label_subplots, plot_image
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from functions.util_functions import cm2inch, label_subplots, plot_image
 
 # -----------------
 # 1. Load data

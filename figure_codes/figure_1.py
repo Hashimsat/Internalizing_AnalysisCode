@@ -1,7 +1,6 @@
 # Hypotheses figure
 # Environment: predator_task_env
 
-from functions.util_functions import cm2inch, label_axes, plot_opened_image_with_text
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -11,6 +10,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from functions.util_functions import cm2inch, label_axes, plot_opened_image_with_text
 
 
 # -----------------

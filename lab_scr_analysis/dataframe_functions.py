@@ -1,7 +1,7 @@
 import itertools
 import pandas as pd
 import numpy as np
-from scr_data_processing_functions import construct_epoch_with_df, baseline_correct
+from lab_scr_analysis.scr_data_processing_functions import construct_epoch_with_df, baseline_correct
 
 
 def create_dataframe(current_study, scr_filtered, df_game_data, path):
