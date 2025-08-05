@@ -98,13 +98,12 @@ def boxplots_lab(df,ax,fontsize=7,abbr='EE',ylabel='Estimation Error', stat='tte
 def plot_x_vs_y_robust(df,x,y,ax,legend_txt=None,xlabel=None,ylabel=None,title=False,tstat=False,fontsize=7,color_index=0,line_color_index=0):
     # plot y vs x regplot along with showing regression coeffs controlled for age and gender, with robust regression
 
-    df = df[df['Gender']!=3]
+    df = df[df['Gender'] != 3]
     df['Age_z'] = zscore(df['Age'])
     df['var_x_z'] = zscore(df[x])
     df['var_y_z'] = zscore(df[y])
 
     var_x_z = 'var_x_z'
-
 
     exog = df[['var_x_z','Age_z','Gender']]
     exog = sm.add_constant(exog)
@@ -174,7 +173,7 @@ def plot_x_vs_y_FactorScores_robust(df,x,y,ax,legend_txt=None,xlabel=None,ylabel
         return (r,p)
 
 
-def plot_descriptive_boxplots(df,x,y,ax,ylabel=None,xlabel=None,title=False,order=None,fontsize=7,min_val=None,max_val=None, stat='ttest'): #stats=mannU or ttest
+def plot_descriptive_boxplots(df,x,y,ax,ylabel=None,xlabel=None,title=False,order=None,fontsize=7,min_val=None,max_val=None, stat='ttest_ind'): #stats=mannU or ttest_ind or ttest_rel
 
     # Function that plots boxplots between low- and high-internalizing, and calculates test statistics
 
@@ -207,3 +206,49 @@ def plot_descriptive_boxplots(df,x,y,ax,ylabel=None,xlabel=None,title=False,orde
 
     else:
         return (r,p,median_Low,median_Low_iqr,median_High,median_High_iqr)
+
+
+def plot_EE_across_blocks(EE,ax,fontsize=7,title=None,Legend=False):
+    # Plot estimation errors across blocks
+    ps = [0, 0.5, 2, 2.5]
+    data_to_plot = [EE['EE_B0'], EE['EE_B1'], EE['EE_B2'],
+                    EE['EE_B3']]
+
+    bp1 = ax.boxplot([EE['EE_B0'], EE['EE_B2']], positions=[0, 2], patch_artist=True,showfliers=False,
+                     boxprops=dict(alpha=0.5,facecolor=colors[0], linewidth=0.5),
+                     medianprops=medianprops,
+                     whiskerprops=whiskerprops,
+                     capprops=whiskerprops,
+                     flierprops=whiskerprops,
+
+                     )
+    bp2 = ax.boxplot([EE['EE_B1'], EE['EE_B3']], positions=[0.5, 2.5],showfliers=False,
+                     patch_artist=True,
+                     boxprops=dict(alpha=0.5, facecolor=colors[1], linewidth=0.5),
+                     medianprops=medianprops,
+                     whiskerprops=whiskerprops,
+                     capprops=whiskerprops,
+                     flierprops=whiskerprops,
+
+                     )
+
+    # Add scatter points with jitter
+    for i in range(len(data_to_plot)):
+        y = data_to_plot[i]
+        # Add some random "jitter" to the x-axis
+        x = np.random.normal(ps[i], 0.02, size=len(y))
+        ax.scatter(x, y, alpha=0.4, color='#808080',s=3, edgecolors='none')
+
+    if Legend == True:
+        ax.legend([bp1["boxes"][0], bp2["boxes"][0]], ['Low', 'High'], loc='upper left',title="Variability",
+                  handlelength=1,fontsize=fontsize-1, title_fontsize=fontsize-1)
+
+    ax.set_title(title,fontsize=fontsize, weight='bold')
+    ax.set_title(title, fontsize=fontsize)
+    ax.set_xlabel('Hazard Rate',fontsize=fontsize)
+    ax.set_ylabel('Estimation Error', fontsize=fontsize)
+    ax.set_xticks([0.25, 2.25], labels=['Low', 'High'])     # Set new tick labels
+    ax.set_ylim([10, 70])
+    ax.axhline(0, color='black', linestyle='--')
+    ax.xaxis.set_tick_params(labelsize=fontsize)
+    ax.yaxis.set_tick_params(labelsize=fontsize)

@@ -86,6 +86,10 @@ if __name__ == '__main__':
 
     # Convert PE to radians
     df['PredictionError'] = np.deg2rad(df['PredictionError'])
+<<<<<<< HEAD
+=======
+    # df_sim['delta_t'] = np.deg2rad(df_sim['delta_t'])
+>>>>>>> 6cb2e16 (Supplementary figures being added)
 
     # Recode valence to [-1,1] format
     df.loc[df['HitMiss'] == 0, 'HitMiss'] = -1
