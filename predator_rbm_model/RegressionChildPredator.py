@@ -6,6 +6,7 @@
 import numpy as np
 import pandas as pd
 from rbm_analyses.rbm_analyses.circular_regression.RegressionParent import RegressionParent
+from rbm_analyses.rbm_analyses.utilities import compute_persprob, residual_fun, normalize_angle
 
 
 class RegressionChildPredator(RegressionParent):
@@ -174,3 +175,126 @@ class RegressionChildPredator(RegressionParent):
             ]
 
         return x0
+
+    def sample_data(self, df_params, n_trials=None, allSubBehavData=None):
+        """ This function samples the data for simulations
+
+        :param df_params: Regression paramters for simulation
+        :param n_trials: Number of trials
+        :param allSubBehavData: Optional subject behavioral data
+        :return: Sampled regression updates
+        """
+
+        # Number of simulations
+        n_sim = len(df_params.beta_0)
+
+        # Initialize
+        df_sim = pd.DataFrame()  # Simulated data
+
+        # Cycle over simulations
+        for i in range(0, n_sim):
+
+            # Extract regression coefficients
+            coeffs = df_params.iloc[i].to_numpy()
+
+            # Regression variables
+            if allSubBehavData is None:
+
+                # Randomly generate data
+                datamat = pd.DataFrame({
+                    "delta_t": np.random.uniform(-np.pi, np.pi, n_trials),
+                    "delta_tau_t": np.random.uniform(-np.pi, np.pi, n_trials),
+                    "delta_omega_t": np.random.uniform(-np.pi, np.pi, n_trials),
+                    "delta_alpha_t": np.random.uniform(-np.pi, np.pi, n_trials),
+                    "delta_HazardRateLevel": np.random.uniform(-np.pi, np.pi, n_trials),
+                    "delta_StochasticityLevel": np.random.uniform(-np.pi, np.pi, n_trials),
+                    "delta_HRStoch": np.random.uniform(-np.pi, np.pi, n_trials),
+                    "visible_dummy": np.random.binomial(1, 0.1, n_trials),
+                    "hit_dummy": np.random.binomial(1, 0.5, n_trials),
+                    "sigma_dummy": np.concatenate([np.zeros(n_trials // 2), np.ones(n_trials // 2)]),
+                    "tau_t": np.random.rand(n_trials),
+                    "omega_t": np.random.rand(n_trials),
+                    "a_t": np.full(n_trials, np.nan),
+                    "group": np.zeros(n_trials)
+                })
+
+            else:
+                # Optionally based on subject data:
+
+                # Logical index for ID
+                Subjects = allSubBehavData["subjectID"].unique()
+                subj = Subjects[i]
+
+                df_data = allSubBehavData.loc[(allSubBehavData['subjectID'] == subj)]
+
+                # Create design matrix
+                datamat = self.get_datamat(df_data)
+
+            # Get fixed parameters of regression
+            fixed_coeffs = self.fixed_coeffs_reg
+
+            # Initialize coefficient dictionary and counters
+            sel_coeffs = dict()  # initialize list with regressor names
+            j = 0  # initialize counter
+
+            # futuretodo: maybe as a separate function when used in a different context as well
+            # Put selected coefficients in list that is used for the regression
+            for key, value in self.which_vars.items():
+                if value:
+                    sel_coeffs[key] = coeffs[j]
+                    j += 1
+                else:
+                    sel_coeffs[key] = fixed_coeffs[key]
+
+            # Create linear regression matrix
+            lr_mat = datamat[self.which_update_regressors].to_numpy()
+
+            # Linear regression parameters
+            update_regressors = [value for key, value in sel_coeffs.items() if
+                                 key not in ['omikron_0', 'omikron_1', 'lambda_0', 'lambda_1']]
+
+            # Predicted updates
+            a_t_hat = np.sum(lr_mat * update_regressors, 1)
+
+            a_t_hat = normalize_angle(a_t_hat)
+
+            # Residuals
+            if self.which_vars["omikron_1"]:  # Access dictionary key
+
+                # Compute updating noise based on common function
+                kappa_up = residual_fun(abs(a_t_hat), sel_coeffs['omikron_0'], sel_coeffs['omikron_1'])
+
+            else:
+                # Motor noise only
+                kappa_up = 1 / (
+                sel_coeffs['omikron_0'])  # np.full(len(datamat), sel_coeffs[sum(self.regressionComponents)])
+
+
+            # Compute update
+            a_t_hat_omik = np.random.vonmises(a_t_hat, kappa_up)
+
+            if self.which_vars["lambda_1"]:
+                pers_prob = compute_persprob(sel_coeffs["lambda_0"], sel_coeffs["lambda_1"], abs(a_t_hat))
+
+            else:
+                pers_prob = sel_coeffs['lambda_0']
+
+            if isinstance(pers_prob, np.ndarray):
+                for p in range(len(a_t_hat)):
+                    if np.random.rand() < pers_prob[p]:
+                        a_t_hat_omik[p] = 0
+            else:
+                for p in range(len(a_t_hat)):
+                    if np.random.rand() < pers_prob:
+                        a_t_hat_omik[p] = 0
+
+            # todo: hier von mises nehmen..
+
+            # Store update and ID
+            df_data.loc[:, "a_t"] = a_t_hat_omik
+            df_data.loc[:, "subj_num"] = i + 1
+
+            # Combine all data
+            df_sim = pd.concat([df_sim, df_data], ignore_index=True)
+
+        return df_sim

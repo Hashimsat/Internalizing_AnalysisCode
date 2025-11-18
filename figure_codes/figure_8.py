@@ -16,7 +16,7 @@ import pickle
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_subplots,label_axes, compute_median_iqr, qns_factor_preprocessing, compute_test_statistic
 from functions.prl_plotting_functions import plot_param_posterior_distribution_onesubplot,plot_factor_errorbar, param_by_factor_score,extract_distribution_mean_hdpis
-from functions.prl_descriptive_functions import performance_prl
+from functions.prl_descriptive_functions import performance_prl, separate_low_high_groups
 
 # -----------------
 # 1. Load data
@@ -26,14 +26,14 @@ figure_folder = base_dir + '/figures/'
 qns_totalscore = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_totalscores_subscales.csv'))
 factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
-pickle_filepath = base_dir + '/data/reversal_task/PRL_NoMag_model6_covariate=Bi3itemCDM_date=2025_1_14_samples=2500tune=1200_seed=3_exp=3.pkl'
-data_path = base_dir + '/data/reversal_task/PRL_NoMag_model_data.pkl'
+pickle_filepath = base_dir + '/data/reversal_task/prl_nomag_model6_covariate=Bi3itemCDM_date=2025_1_14_samples=2500tune=1200_seed=3_exp=3.pkl'
+data_path = base_dir + '/data/reversal_task/prl_nomag_model_data.pkl'
 df_prl = pd.read_csv(os.path.join(base_dir, 'data/reversal_task/df_prl_NoMag_AllData.csv'))
 
 # -------------------
 # 2. Preprocess data
 # -------------------
-df_qns, df_fs, df_merged = qns_factor_preprocessing(qns_totalscore, factor_scores)
+df_qns, df_fs, df_merged = qns_factor_preprocessing(qns_totalscore, factor_scores, drop_non_binary=False)
 
 with open(data_path,'rb') as f:
     data = pickle.load(f)
@@ -49,16 +49,8 @@ model = model_dict['model']
 Subjects_reversal = pd.unique(df_prl['subjectID'])
 df_merged = df_merged[df_merged['subjectID'].isin(Subjects_reversal)]
 
-# add G category
-# standardize g and f scores
-df_merged['g_z'] = zscore(df_merged['g'])
-
-mean_val = df_merged['g_z'].mean()
-std_val = df_merged['g_z'].std()
-
-# Create G_Category column based on conditions
-df_merged['G_Category'] = pd.np.where(df_merged['g_z'] < mean_val, 'Low',
-                                pd.np.where(df_merged['g_z'] > mean_val, 'High', 'Normal'))
+# add G category based on mean split
+df_merged = separate_low_high_groups(df_merged, col_name='g', category_name='G_Category')
 
 # ---------------------
 # 3. Compute P(Correct)
@@ -284,7 +276,7 @@ stats_PCorrect = {'Statistic':['mean_stable_lowG','std_stable_lowG','median_stab
                                mean_volatile_LowG,std_volatile_LowG,median_volatile_LowG,volatile_LowG_IQI[0],volatile_LowG_IQI[1],
                                mean_volatile_HighG,std_volatile_HighG,median_volatile_HighG,volatile_HighG_IQI[0],volatile_HighG_IQI[1],
                                round(t_volatile,2),round(p_volatile,2),dof_volatile,
-                               int(len(df_merged)),n_lowG,n_highG,round(mean_val,2), round(np.max(df_merged['g']),2), round(np.min(df_merged['g']),2)]
+                               int(len(df_merged)),n_lowG,n_highG,round(np.mean(df_merged['g']),2), round(np.max(df_merged['g']),2), round(np.min(df_merged['g']),2)]
                      }
 
 df_stats = pd.DataFrame(stats_PCorrect,dtype=int)

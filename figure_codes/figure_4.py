@@ -10,7 +10,7 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing
-from functions.predator_descriptive_functions import EstimationError_overall, PerseverationRate_overall, SingleTrialLR_overall, RT_InitConf_overall, combine_descriptive_with_factor_scores
+from functions.predator_descriptive_functions import EstimationError_overall, PerseverationRate_overall, SingleTrialLR_overall, RT_InitConf_overall, combine_descriptive_with_factor_scores, zscore_columns
 from functions.LR_bins_internalizing import learning_rate_descriptive_internalizing
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_descriptive_boxplots
 
@@ -41,10 +41,8 @@ Subjects_predator_init = [subj for subj in Subjects_predator_init if subj is not
 df_merged = df_merged[df_merged['subjectID'].isin(Subjects_predator_init)]
 
 # standardize age, g and f scores
-df_merged['g_z'] = zscore(df_merged['g'])
-df_merged['Age_z'] = zscore(df_merged['Age'])
-df_merged['F1_z'] = zscore(df_merged['F1.'])
-df_merged['F2_z'] = zscore(df_merged['F2.'])
+columns_to_zscore = ['g', 'Age', 'F1.', 'F2.']
+df_merged = zscore_columns(df_merged, columns_to_zscore)
 
 # Divide participants into low- and high-internalizing groups
 mean_val = df_merged['g_z'].mean()

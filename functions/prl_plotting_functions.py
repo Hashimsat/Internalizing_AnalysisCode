@@ -3,9 +3,13 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import seaborn as sns
 import scipy
+from scipy import stats
+from functions.util_functions import medianprops, compute_median_iqr, compute_test_statistic
 import pymc3 as pm
+
 
 
 name_replace = {
@@ -663,3 +667,93 @@ def plot_param_separated_by_domain(trace,df_data,model,
     plt.xlim(0 - 0.6, len(pos) + 0.3)
     plt.ylim([-0.1, 1.1])
 
+
+def get_boxplot(ax, data, positions, color, whiskerprops, meanprops, medianprops):
+        """Generate a boxplot."""
+        return ax.boxplot(data, positions=positions, patch_artist=True, showfliers=False,
+                          boxprops=dict(alpha=0.5, linewidth=0.5, facecolor=color),
+                          whiskerprops=whiskerprops, capprops=whiskerprops,
+                          medianprops=medianprops, meanprops=meanprops, showmeans=False)
+
+def plot_descriptive_boxplots(df, ax, colors, fontsize=7, prefix=None, order=None, title=True, Legend=False, xlabel=None, ylabel=None, min_val=None, max_val=None, stat='mannU'):
+
+    # Plot switch rates in stable vs volatile blocks
+    prefix_stable = prefix + '_B0'
+    prefix_volatile = prefix + '_B1'
+
+    # separate data into low and high G
+    df_lowG = df[df['G_Category'] == 'Low']
+    df_highG = df[df['G_Category'] == 'High']
+
+
+    whiskerprops = dict(color='k', linewidth=0.5)
+    meanprops = None
+    medianprop = medianprops()
+
+    # initialize data to plot
+    data_to_plot = [df_lowG[prefix_stable], df_highG[prefix_stable], df_lowG[prefix_volatile],
+                    df_highG[prefix_volatile]]
+    ps = [0, 0.5, 2, 2.5]
+
+    # Plot boxplots
+    bp1 = get_boxplot(ax, [df_lowG[prefix_stable], df_lowG[prefix_volatile]], [0, 2], colors[0], whiskerprops, meanprops, medianprop)
+    bp2 = get_boxplot(ax, [df_highG[prefix_stable], df_highG[prefix_volatile]], [0.5, 2.5], colors[1], whiskerprops, meanprops, medianprop)
+
+
+    for i in range(len(data_to_plot)):
+        y = data_to_plot[i]
+        #     # Add some random "jitter" to the x-axis
+        x = np.random.normal(ps[i], 0.02, size=len(y))
+        ax.scatter(x, y, alpha=0.4, color='#808080', s=3, edgecolors='none')
+
+    # Calculate test statistics
+    t_stable, p_stable, dof_stable, n_lowG, n_highG = compute_test_statistic(df, 'G_Category',
+                                                                             prefix_stable, 'Low', 'High',
+                                                                             test=stat)
+    t_volatile, p_volatile, dof_volatile, _, _ = compute_test_statistic(df, 'G_Category', prefix_volatile,
+                                                                        'Low', 'High', test=stat)
+
+    stat_name = ['stable_t', 'stable_p', 'stable_dof', 'volatile_t', 'volatile_p', 'volatile_dof']
+    stat_value = [round(t_stable, 2), round(p_stable, 2), round(dof_stable, 2), round(t_volatile, 2),
+                  round(p_volatile, 2), round(dof_volatile, 2)]
+
+    # calculate median and IQR
+    # stable phase
+
+    median_stable_LowG, stable_LowG_IQI = compute_median_iqr(df[df['G_Category'] == 'Low'][prefix_stable])
+    median_stable_HighG, stable_HighG_IQI = compute_median_iqr(df[df['G_Category'] == 'High'][prefix_stable])
+
+    # volatile phase
+    median_volatile_LowG, volatile_LowG_IQI = compute_median_iqr(df[df['G_Category'] == 'Low'][prefix_volatile])
+    median_volatile_HighG, volatile_HighG_IQI = compute_median_iqr(df[df['G_Category'] == 'High'][prefix_volatile])
+
+    # Set plot title and labels
+    if title:
+        ax.set_title(f"$p_{{st}}={round(p_stable, 2)}$, $p_{{vol}}={round(p_volatile, 2)}$", fontsize=fontsize, y=1,
+                     pad=5)
+    if Legend:
+        ax.legend([bp1["boxes"][0], bp2["boxes"][0]], ['Low G', 'High G'], fontsize=fontsize - 1, handlelength=1)
+    ax.set_ylabel(ylabel, fontsize=fontsize)
+    ax.set_xlabel(xlabel, fontsize=fontsize)
+    ax.set_xticks([0.25, 2.25])
+    ax.set_xticklabels(labels=['Stable', 'Volatile'])
+
+    # Set y-axis limits
+    min_val = df[[prefix_stable, prefix_volatile]].min().min() - 2 if min_val is None else min_val
+    max_val = df[[prefix_stable, prefix_volatile]].max(numeric_only=True).max() + 0.5 if max_val is None else max_val
+    ax.set_ylim([min_val, max_val])
+    ax.xaxis.set_tick_params(labelsize=fontsize)
+    ax.yaxis.set_tick_params(labelsize=fontsize)
+    ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
+
+    # Prepare statistics dictionary
+    stats_data = {
+        'Statistic': ['median_stable_Low', 'median_stable_High', 'median_volatile_Low', 'median_volatile_High',
+                      'median_stable_Low_iqr', 'median_stable_High_iqr', 'median_volatile_Low_iqr',
+                      'median_volatile_High_iqr'] + stat_name,
+        'Value': [median_stable_LowG, median_stable_HighG, median_volatile_LowG, median_volatile_HighG,
+                  stable_LowG_IQI, stable_HighG_IQI, volatile_LowG_IQI, volatile_HighG_IQI] + stat_value
+    }
+    stats_data['Statistic'] = [f"{prefix}_{stat}" for stat in stats_data['Statistic']]
+
+    return stats_data if title else (stats_data, round(p_stable, 2), round(p_volatile, 2))

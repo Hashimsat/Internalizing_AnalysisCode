@@ -5,6 +5,7 @@ from scipy.stats import zscore
 import matplotlib.ticker as ticker
 import seaborn as sns
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 from functions.util_functions import compute_median_iqr, compute_test_statistic
 
 medianprops = dict(linestyle='-', linewidth=1, color='k')
@@ -136,11 +137,11 @@ def plot_x_vs_y_FactorScores_robust(df,x,y,ax,legend_txt=None,xlabel=None,ylabel
 
 
     df = df[df['Gender']!=3]
-    df['Age_z'] = zscore(df['Age'])
-    df['g_z'] = zscore(df['g'])
-    df['F1_z'] = zscore(df['F1.'])
-    df['F2_z'] = zscore(df['F2.'])
-    df['var_y_z'] = zscore(df[y])
+    df.loc[:, 'Age_z'] = zscore(df['Age'])
+    df.loc[:, 'g_z'] = zscore(df['g'])
+    df.loc[:, 'F1_z'] = zscore(df['F1.'])
+    df.loc[:, 'F2_z'] = zscore(df['F2.'])
+    df.loc[:, 'var_y_z'] = zscore(df[y])
 
     # take out the . if it exists in x name
     x_temp = x.replace('.','')
@@ -252,3 +253,53 @@ def plot_EE_across_blocks(EE,ax,fontsize=7,title=None,Legend=False):
     ax.axhline(0, color='black', linestyle='--')
     ax.xaxis.set_tick_params(labelsize=fontsize)
     ax.yaxis.set_tick_params(labelsize=fontsize)
+
+
+def FDR_correction_regression(df,endog,exog_array,rlm_out=False):
+    # For each item in endog array, Apply robust regressions and then FDR correction on it
+
+    p_vals = []
+    rlm_results_dict = {}
+    rlm_results_t_dict = {}
+    p_vals_dict = {}
+    fdr_p_vals = []
+    for i in range(len(endog)):
+        endog_curr = df[endog[i]].values
+        exog_curr = df[exog_array]
+        exog_curr = sm.add_constant(exog_curr)
+
+        rlm_model = sm.RLM(endog_curr, exog_curr, M=sm.robust.norms.HuberT())
+        rlm_results = rlm_model.fit()
+        p_vals.append(rlm_results.pvalues)
+
+        fdr_results_small = sm.stats.fdrcorrection(rlm_results.pvalues, alpha=0.05, method='indep', is_sorted=False)
+        fdr_p_vals.append(fdr_results_small[1])
+
+        rlm_results_dict[endog[i]] = rlm_results.params
+        rlm_results_t_dict[endog[i]] = rlm_results.tvalues
+        p_vals_dict[endog[i]] = rlm_results.pvalues
+
+
+
+    #Apply fdr regression on pvals
+    p_vals = np.array(p_vals)
+    p_vals_flat = p_vals.flatten()
+    p_conc_fdr = sm.stats.fdrcorrection(p_vals_flat, alpha=0.05, method='indep', is_sorted=False)
+    p_corrected = np.round(p_conc_fdr[1], 3)
+
+    # extract pvals for p_b1 and p_b4
+    p_b1 = p_corrected[1]
+    p_b4 = p_corrected[7]
+    print('uncorrected_pvals are:', p_vals)
+
+    if (rlm_out):
+        return (p_corrected,p_b1, p_b4, rlm_results_dict, rlm_results_t_dict)
+    else:
+        return (p_corrected,p_b1, p_b4)
+
+# Helper function to create subplots
+def create_subplots(fig, gridspec, positions):
+    axes = [plt.Subplot(fig, gridspec[pos]) for pos in positions]
+    for ax in axes:
+        fig.add_subplot(ax)
+    return axes

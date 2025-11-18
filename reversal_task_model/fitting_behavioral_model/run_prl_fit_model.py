@@ -22,21 +22,22 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=3)
-    parser.add_argument('--modelname', '-m', type=str, default='11')
+    parser.add_argument('--modelname', '-m', type=str, default='6')
     # parser.add_argument('--steps', '-st', type=int, default=2500)
     # parser.add_argument('--steps_tune', '-stt', type=int, default=1500)
 
-    parser.add_argument('--steps', '-st', type=int, default=2000)
+    parser.add_argument('--steps', '-st', type=int, default=2500)
     parser.add_argument('--steps_tune', '-stt', type=int, default=1200)
+    parser.add_argument('--num_chains', '-nc', type=int, default=2)
 
     parser.add_argument('--covariate', '-c', type=str, default='Bi3itemCDM')
     parser.add_argument('--hierarchical', '-hh', type=str, default='True')
     parser.add_argument('--task', '-tt', type=str, default='both')
     parser.add_argument('--subset', '-sub', type=str, default='all')
     parser.add_argument('--covariatemask', '-cm', type=str, default='None')
-    parser.add_argument('--exp', '-e', type=int, default=2)
-    parser.add_argument('--task_type', '-ttype', type=str, default='MagVersion') #MagVersion, MagVersionBoth or NoMagVersion
-    parser.add_argument('--iterate_models', '-itm', type=bool, default=True)
+    parser.add_argument('--exp', '-e', type=int, default=1)
+    parser.add_argument('--task_type', '-ttype', type=str, default='NoMagVersion') #MagVersion, MagVersionBoth or NoMagVersion
+    parser.add_argument('--iterate_models', '-itm', type=bool, default=False)
 
     args = parser.parse_args()
 

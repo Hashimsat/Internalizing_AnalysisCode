@@ -108,7 +108,7 @@ class RegressionParent:
         columns.append("llh")
         columns.append("group")
         columns.append("subj_num")
-        columns.append("ID")
+        columns.append("subjectID")
         results_df = pd.DataFrame(output, columns=columns)
 
         return results_df

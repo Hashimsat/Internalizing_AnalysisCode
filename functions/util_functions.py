@@ -731,3 +731,7 @@ def compute_test_statistic(df, group_col, value_col, group1, group2, test='ttest
 
     return res.statistic, res.pvalue, dof, n1, n2
 
+def calculate_spearman_corr(arr1, arr2):
+    r, p = stats.spearmanr(arr1, arr2)
+    return np.round(r, 2)
+

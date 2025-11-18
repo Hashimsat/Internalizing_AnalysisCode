@@ -86,10 +86,6 @@ if __name__ == '__main__':
 
     # Convert PE to radians
     df['PredictionError'] = np.deg2rad(df['PredictionError'])
-<<<<<<< HEAD
-=======
-    # df_sim['delta_t'] = np.deg2rad(df_sim['delta_t'])
->>>>>>> 6cb2e16 (Supplementary figures being added)
 
     # Recode valence to [-1,1] format
     df.loc[df['HitMiss'] == 0, 'HitMiss'] = -1
@@ -148,8 +144,13 @@ if __name__ == '__main__':
     predator_regression = RegressionChildPredator(reg_vars)  # regression object instance
 
     # Drop nans if any exist and initialize group column (group not used in this analysis)
-    df_pred = df.dropna(subset=['PredictionError', 'a_t']).reset_index()
+    df_pred = df.dropna(subset=['PredictionError','omega_t', 'a_t']).reset_index()
     df_pred['group'] = 1
+
+    # save the combined data
+    name = 'df_predator_normative_added.csv'
+    savename = os.path.join(data_folder, name)
+    df_pred.to_csv(savename, index=False)
 
     # Run regression
     # --------------

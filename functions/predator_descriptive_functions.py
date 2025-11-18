@@ -4,6 +4,7 @@
 
 import numpy as np
 import pandas as pd
+from scipy.stats import zscore
 from functions.util_functions import circular_distance, CircularDistance_Array, BoundLR, safe_div_list
 
 def calculate_estimation_error(df):
@@ -240,3 +241,11 @@ def combine_descriptive_with_factor_scores(df, df_fs, lowhighanx=False):
 
     else:
         return df_combined
+
+# Helper function to z-score columns
+def zscore_columns(df, columns):
+    for col in columns:
+        # Replace '.' in column names with '_' for the z-scored column
+        col_z = col.replace('.', '') + '_z'
+        df[col_z] = zscore(df[col])
+    return df
