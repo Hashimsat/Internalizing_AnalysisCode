@@ -171,3 +171,51 @@ def separate_low_high_groups(df, col_name='g_z', category_name='G_Category'):
                                                  pd.np.where(df[col_name_z] < mean_val, 'Low', 'Normal'))
 
     return df
+
+
+# Functions for PPC
+
+def calculate_switches_PPC(df, observed_col, num_simulations=500):
+    """Calculate the number of switches and their statistics for stable and volatile blocks."""
+    df_stable = df[df['stabvol'] == -1]
+    df_volatile = df[df['stabvol'] == 1]
+
+    num_switches_stable_sim = np.sum(np.abs(np.diff(df_stable.iloc[:, :num_simulations], axis=0)), axis=0)
+    num_switches_volatile_sim = np.sum(np.abs(np.diff(df_volatile.iloc[:, :num_simulations], axis=0)), axis=0)
+
+    mean_switches_stable_sim = np.mean(num_switches_stable_sim)
+    std_switches_stable_sim = np.std(num_switches_stable_sim)
+    mean_switches_volatile_sim = np.mean(num_switches_volatile_sim)
+    std_switches_volatile_sim = np.std(num_switches_volatile_sim)
+
+    num_switches_stable_orig = np.sum(np.abs(np.diff(df_stable[observed_col], axis=0)), axis=0)
+    num_switches_volatile_orig = np.sum(np.abs(np.diff(df_volatile[observed_col], axis=0)), axis=0)
+
+    return {
+        'mean_switches_stable_sim': mean_switches_stable_sim,
+        'std_switches_stable_sim': std_switches_stable_sim,
+        'mean_switches_volatile_sim': mean_switches_volatile_sim,
+        'std_switches_volatile_sim': std_switches_volatile_sim,
+        'num_switches_stable_orig': num_switches_stable_orig,
+        'num_switches_volatile_orig': num_switches_volatile_orig
+    }
+
+def calculate_p_correct_PPC(df, dominant_col, observed_col, num_simulations=500):
+    """Calculate P(Correct) for simulations and original data."""
+    df_correct = (df.iloc[:, :num_simulations] == df[dominant_col].values[:, None]).astype(int)
+    p_correct_ppc = np.sum(df_correct, axis=0) / df.shape[0]
+
+    mean_p_correct = np.mean(p_correct_ppc)
+    std_p_correct = np.std(p_correct_ppc)
+
+    df_correct_orig = (df[observed_col].values == df[dominant_col].values).astype(int)
+    p_correct_orig = np.sum(df_correct_orig) / df.shape[0]
+
+    # return as a dataframe
+    df_result = pd.DataFrame([{
+        'mean_p_correct': mean_p_correct,
+        'std_p_correct': std_p_correct,
+        'p_correct_orig': p_correct_orig
+    }])
+
+    return df_result, p_correct_ppc

@@ -10,68 +10,65 @@ from scipy import stats
 from functions.util_functions import medianprops, compute_median_iqr, compute_test_statistic
 import pymc3 as pm
 
-
-
 name_replace = {
-    'lr_baseline':r'Baseline',
-    'lr_goodbad':r'Good-bad',
-    'lr_stabvol':r'Volatile-stable',
-    'lr_goodbad_stabvol':'(Good-bad) x \n (Volatile-stable)',
-    'lr_rewpain':r'Reward-loss',
-    'lr_rewpain_goodbad':'(Reward-loss) x \n (Good-bad)',
-    'lr_rewpain_stabvol':'(Reward-loss) x \n (Volatile-stable)',
-    'lr_rewpain_goodbad_stabvol':r'$(reward-loss)x(good-bad)x(volatile-stable)$',
-    'lr_c_baseline':r'$\eta_{baseline}$',
-    'Amix_baseline':r'$\lambda_{baseline}$',
-    'Amix_goodbad':r'$\lambda_{good-bad}$',
-    'Amix_stabvol':r'$\lambda_{volatile-stable}$',
-    'Amix_goodbad_stabvol':r'$\lambda_{(good-bad)x(volatile-stable)}$',
-    'Binv_baseline':r'Baseline',
-    'Binv_goodbad':r'Good-bad',
-    'Binv_stabvol':r'Volatile-stable',
-    'Binv_goodbad_stabvol':'(Good-bad) x \n (Volatile-stable)',
+    'lr_baseline': r'Baseline',
+    'lr_goodbad': r'Good-bad',
+    'lr_stabvol': r'Volatile-stable',
+    'lr_goodbad_stabvol': '(Good-bad) x \n (Volatile-stable)',
+    'lr_rewpain': r'Reward-loss',
+    'lr_rewpain_goodbad': '(Reward-loss) x \n (Good-bad)',
+    'lr_rewpain_stabvol': '(Reward-loss) x \n (Volatile-stable)',
+    'lr_rewpain_goodbad_stabvol': r'$(reward-loss)x(good-bad)x(volatile-stable)$',
+    'lr_c_baseline': r'$\eta_{baseline}$',
+    'Amix_baseline': r'$\lambda_{baseline}$',
+    'Amix_goodbad': r'$\lambda_{good-bad}$',
+    'Amix_stabvol': r'$\lambda_{volatile-stable}$',
+    'Amix_goodbad_stabvol': r'$\lambda_{(good-bad)x(volatile-stable)}$',
+    'Binv_baseline': r'Baseline',
+    'Binv_goodbad': r'Good-bad',
+    'Binv_stabvol': r'Volatile-stable',
+    'Binv_goodbad_stabvol': '(Good-bad) x \n (Volatile-stable)',
     'Binv_rewpain': r'Reward-loss',
     'Binv_rewpain_goodbad': '(Reward-loss) x \n (Good-bad)}',
     'Binv_rewpain_stabvol': '(Reward-loss) x \n (Volatile-stable)',
-    'Bc_baseline':r'$\omega_{(k)baseline}$',
-    'mag_baseline':r'$r_{baseline}$',
-    'Amix_rewpain':r'$\lambda_{reward-aversive}$',
-    'Amix_rewpain_goodbad':r'$\lambda_{(reward-aversive)x(good-bad)}$',
-    'Amix_rewpain_stabvol':r'$\lambda_{(reward-aversive)x(volatile-stable)}$',
-    'Bc_rewpain':r'$\omega_{(k) reward-aversive}$',
-    'mag_rewpain':r'$r_{reward-aversive}$',
+    'Bc_baseline': r'$\omega_{(k)baseline}$',
+    'mag_baseline': r'$r_{baseline}$',
+    'Amix_rewpain': r'$\lambda_{reward-aversive}$',
+    'Amix_rewpain_goodbad': r'$\lambda_{(reward-aversive)x(good-bad)}$',
+    'Amix_rewpain_stabvol': r'$\lambda_{(reward-aversive)x(volatile-stable)}$',
+    'Bc_rewpain': r'$\omega_{(k) reward-aversive}$',
+    'mag_rewpain': r'$r_{reward-aversive}$',
 }
 
 name_replace_RewardLoss = {
-    'lr_baseline':r'Baseline',
-    'lr_goodbad':r'Good-bad',
-    'lr_stabvol':r'Volatile-stable',
-    'lr_goodbad_stabvol':'(Good-bad)x(Volatile-stable)',
-    'lr_rewpain':r'Reward-loss',
-    'lr_rewpain_goodbad':'(Reward-loss)x(Good-bad)',
-    'lr_rewpain_stabvol':'(Reward-loss)x(Volatile-stable)',
-    'lr_rewpain_goodbad_stabvol':r'$(reward-loss)x(good-bad)x(volatile-stable)$',
-    'lr_c_baseline':r'$\eta_{baseline}$',
-    'Amix_baseline':r'$\lambda_{baseline}$',
-    'Amix_goodbad':r'$\lambda_{good-bad}$',
-    'Amix_stabvol':r'$\lambda_{volatile-stable}$',
-    'Amix_goodbad_stabvol':r'$\lambda_{(good-bad)x(volatile-stable)}$',
-    'Binv_baseline':r'Baseline',
-    'Binv_goodbad':r'Good-bad',
-    'Binv_stabvol':r'Volatile-stable',
-    'Binv_goodbad_stabvol':'(Good-bad)x(Volatile-stable)',
+    'lr_baseline': r'Baseline',
+    'lr_goodbad': r'Good-bad',
+    'lr_stabvol': r'Volatile-stable',
+    'lr_goodbad_stabvol': '(Good-bad)x(Volatile-stable)',
+    'lr_rewpain': r'Reward-loss',
+    'lr_rewpain_goodbad': '(Reward-loss)x(Good-bad)',
+    'lr_rewpain_stabvol': '(Reward-loss)x(Volatile-stable)',
+    'lr_rewpain_goodbad_stabvol': r'$(reward-loss)x(good-bad)x(volatile-stable)$',
+    'lr_c_baseline': r'$\eta_{baseline}$',
+    'Amix_baseline': r'$\lambda_{baseline}$',
+    'Amix_goodbad': r'$\lambda_{good-bad}$',
+    'Amix_stabvol': r'$\lambda_{volatile-stable}$',
+    'Amix_goodbad_stabvol': r'$\lambda_{(good-bad)x(volatile-stable)}$',
+    'Binv_baseline': r'Baseline',
+    'Binv_goodbad': r'Good-bad',
+    'Binv_stabvol': r'Volatile-stable',
+    'Binv_goodbad_stabvol': '(Good-bad)x(Volatile-stable)',
     'Binv_rewpain': r'Reward-loss',
     'Binv_rewpain_goodbad': '(Reward-loss)x(Good-bad)',
     'Binv_rewpain_stabvol': '(Reward-loss)x(Volatile-stable)',
-    'Bc_baseline':r'$\omega_{(k)baseline}$',
-    'mag_baseline':r'$r_{baseline}$',
-    'Amix_rewpain':r'$\lambda_{reward-aversive}$',
-    'Amix_rewpain_goodbad':r'$\lambda_{(reward-aversive)x(good-bad)}$',
-    'Amix_rewpain_stabvol':r'$\lambda_{(reward-aversive)x(volatile-stable)}$',
-    'Bc_rewpain':r'$\omega_{(k) reward-aversive}$',
-    'mag_rewpain':r'$r_{reward-aversive}$',
+    'Bc_baseline': r'$\omega_{(k)baseline}$',
+    'mag_baseline': r'$r_{baseline}$',
+    'Amix_rewpain': r'$\lambda_{reward-aversive}$',
+    'Amix_rewpain_goodbad': r'$\lambda_{(reward-aversive)x(good-bad)}$',
+    'Amix_rewpain_stabvol': r'$\lambda_{(reward-aversive)x(volatile-stable)}$',
+    'Bc_rewpain': r'$\omega_{(k) reward-aversive}$',
+    'mag_rewpain': r'$r_{reward-aversive}$',
 }
-
 
 
 def boxprop_specifics():
@@ -81,34 +78,36 @@ def boxprop_specifics():
 
     return boxprops, whiskerprops, medianprops
 
-def basecoding(gb,sv, rp):
-    basecode=[0,0,0]
 
-    if gb=='good':
-        basecode[0]=1
-    else:
-        basecode[0]=-1
+def basecoding(gb, sv, rp):
+    basecode = [0, 0, 0]
 
-    if sv=='stable':
-        basecode[1]=-1
+    if gb == 'good':
+        basecode[0] = 1
     else:
-        basecode[1]=1
+        basecode[0] = -1
+
+    if sv == 'stable':
+        basecode[1] = -1
+    else:
+        basecode[1] = 1
 
     if rp == 'rew':
         basecode[2] = 1
     else:
         basecode[2] = -1
 
-    return(basecode)
+    return (basecode)
+
 
 def plot_param_posterior_distribution_onesubplot(
-        trace=None, # data
-        params=None, # model parameter names
-        gp='u', # group parameter
-        param = 'lr', # readable name
+        trace=None,  # data
+        params=None,  # model parameter names
+        gp='u',  # group parameter
+        param='lr',  # readable name
         taskVersion='reward',
         offset=0.5,
-        ax=None,# plot characteristics
+        ax=None,  # plot characteristics
         colors='k',
         fontsize=7,
         bp_width=0.1,
@@ -121,10 +120,9 @@ def plot_param_posterior_distribution_onesubplot(
         s_bar=5,
         rotation=45,
         elinewidth=1,
-        ebar_offset = 0.15,
-        legend_anchor=[0.45,-0.9],
+        ebar_offset=0.15,
+        legend_anchor=[0.45, -0.9],
         boxplot=True):
-
     '''Error bar plot for parameter components for one parameter type (i.e learning rate)
        Inputs:
            ax: for a subplot of a larger figure
@@ -136,22 +134,22 @@ def plot_param_posterior_distribution_onesubplot(
     boxprops, whiskerprops, medianprops = boxprop_specifics()
 
     # get the indexes for the model parameters
-    pis = [pi for pi,p in enumerate(params) if param in p and param+'_c' not in p]
-    piis =np.arange(len(pis))
+    pis = [pi for pi, p in enumerate(params) if param in p and param + '_c' not in p]
+    piis = np.arange(len(pis))
 
     if (taskVersion == 'rewardLoss'):
         params_tmp = [name_replace_RewardLoss[params[pi]] for pi in pis]
     else:
         params_tmp = [name_replace[params[pi]] for pi in pis]
 
-    trace_params = np.squeeze(trace[gp][:,pis])
+    trace_params = np.squeeze(trace[gp][:, pis])
     df = pd.DataFrame(trace_params)
     df.columns = params_tmp
 
     # plot violinplot
-    v = ax.violinplot(df, vert=True,positions=np.array(piis)+offset, showextrema=False, widths=1)
+    v = ax.violinplot(df, vert=True, positions=np.array(piis) + offset, showextrema=False, widths=1)
 
-    for b_no,b in enumerate(v['bodies']):
+    for b_no, b in enumerate(v['bodies']):
         # get the center
         m = np.mean(b.get_paths()[0].vertices[:, 0])
         # modify the paths to not go further right than the center
@@ -164,31 +162,30 @@ def plot_param_posterior_distribution_onesubplot(
     # Plot boxplots for independent vars for each participant
 
     if (boxplot):
-        beta_independent = np.mean(trace['Theta_both'],axis=0)[:,pis]
+        beta_independent = np.mean(trace['Theta_both'], axis=0)[:, pis]
 
-        df_beta_independent = pd.DataFrame(beta_independent,columns = params_tmp)
+        df_beta_independent = pd.DataFrame(beta_independent, columns=params_tmp)
         df_long = pd.melt(df_beta_independent, value_vars=params_tmp,
                           value_name='Estimated value', var_name='Parameter')
 
-        ax.boxplot(x=df_beta_independent,vert=True,positions=pis, showfliers=False, widths=bp_width,
+        ax.boxplot(x=df_beta_independent, vert=True, positions=pis, showfliers=False, widths=bp_width,
                    boxprops=boxprops,
-                   whiskerprops=whiskerprops,capprops=whiskerprops,
-                   medianprops=medianprops,)
+                   whiskerprops=whiskerprops, capprops=whiskerprops,
+                   medianprops=medianprops, )
 
-        strip = sns.stripplot(y='Estimated value', x="Parameter", data=df_long,palette=colors,
+        strip = sns.stripplot(y='Estimated value', x="Parameter", data=df_long, palette=colors,
                               jitter=0.02, linewidth=0, size=2, alpha=0.25, zorder=1, dodge=False, ax=ax)
-
 
     if (boxplot == False):
         # Plot 95% hdi lines
         mu = np.mean(trace[gp][:, pis], axis=0)
 
         interval = np.squeeze(pm.stats.hpd(trace[gp][:, pis], alpha=0.05))
-        lower2p5 = interval[:,0]
-        upper97p5 = interval[:,1]
+        lower2p5 = interval[:, 0]
+        upper97p5 = interval[:, 1]
 
         # error bar for group mean and HDI's
-        err_val = np.squeeze(np.array([[mu[:,0] - lower2p5], [upper97p5 - mu[:,0]]]))
+        err_val = np.squeeze(np.array([[mu[:, 0] - lower2p5], [upper97p5 - mu[:, 0]]]))
 
         plt.errorbar(piis + ebar_offset, mu, yerr=err_val,
                      color=color_errbar,
@@ -198,16 +195,16 @@ def plot_param_posterior_distribution_onesubplot(
                      label=legendlabel)
 
     if legend:
-        ax.legend(ncol=2, loc=legendloc,bbox_to_anchor=legend_anchor, fontsize=fontsize-1)
+        ax.legend(ncol=2, loc=legendloc, bbox_to_anchor=legend_anchor, fontsize=fontsize - 1)
 
     # horizontal line
-    plt.axhline(y=0,linestyle='--',color='k',linewidth=0.5, alpha=0.7);
+    plt.axhline(y=0, linestyle='--', color='k', linewidth=0.5, alpha=0.7);
 
     # set labels
     ax.set_xticks(piis)
 
     if xlabel:
-        ax.set_xticklabels(params_tmp,rotation=rotation, fontsize=fontsize)
+        ax.set_xticklabels(params_tmp, rotation=rotation, fontsize=fontsize)
         ax.xaxis.set_tick_params(labelsize=fontsize)
 
     else:
@@ -216,14 +213,14 @@ def plot_param_posterior_distribution_onesubplot(
     ax.yaxis.set_tick_params(labelsize=fontsize)
     ax.set_ylabel(ylabel, fontsize=fontsize)
     ax.set_xlabel('')
-    ax.set_ylim(np.min(interval)-0.45, np.max(interval)+0.45)
-    ax.set_xlim(-1, len(pis)+0.3)
+    ax.set_ylim(np.min(interval) - 0.45, np.max(interval) + 0.45)
+    ax.set_xlim(-1, len(pis) + 0.3)
 
 
 def plot_factor_errorbar(trace=None, params=None,
                          ax=None,
                          factor='g',
-                         param = 'lr',
+                         param='lr',
                          offset=0,
                          ylabel='effect of general factor \n on update',
                          xlabel=True,
@@ -280,20 +277,20 @@ def plot_factor_errorbar(trace=None, params=None,
         plt.xticks(ticks=piis, labels=[])
     plt.yticks(fontsize=fontsize);
     plt.ylabel(ylabel, fontsize=fontsize)
-    plt.xlim(np.min(piis)-0.5, np.max(piis)+0.5)
+    plt.xlim(np.min(piis) - 0.5, np.max(piis) + 0.5)
 
     # horizontal line
     plt.axhline(y=0, linestyle='--', color='k', linewidth=0.5);
 
     if legend:
-        plt.legend(loc=legendloc, ncol=1, bbox_to_anchor=legend_anchor, fontsize=fontsize-1)
+        plt.legend(loc=legendloc, ncol=1, bbox_to_anchor=legend_anchor, fontsize=fontsize - 1)
 
 
 def get_param_by_subj_by_cond(Theta,
                               index,
                               transform='invlogit',
                               effects=[],
-                              domain = ['rew'],
+                              domain=['rew'],
                               n_subs=0):
     '''
     Converts params from sampling space to conditions.
@@ -304,29 +301,29 @@ def get_param_by_subj_by_cond(Theta,
 
     '''
 
-    total_conditions = 4*len(domain)
+    total_conditions = 4 * len(domain)
     param = np.zeros((n_subs, total_conditions))
-    B_trace = Theta[:,index]
+    B_trace = Theta[:, index]
 
     for subj in range(n_subs):
         conds = []
-        ci=0
+        ci = 0
         for rp in domain:
-            for gb in ['good','bad']:
-                for sv in ['stable','volatile']:
-                    block = gb+' '+sv
-                    basecode=basecoding(gb,sv,rp)
+            for gb in ['good', 'bad']:
+                for sv in ['stable', 'volatile']:
+                    block = gb + ' ' + sv
+                    basecode = basecoding(gb, sv, rp)
 
-                    code = [] # needs to be size of the number of effects
+                    code = []  # needs to be size of the number of effects
                     for effect in effects:
-                        if effect=='baseline':
+                        if effect == 'baseline':
                             code.append(1)
-                        elif effect=='goodbad':
+                        elif effect == 'goodbad':
                             code.append(basecode[0])
-                        elif effect=='stabvol':
+                        elif effect == 'stabvol':
                             code.append(basecode[1])
-                        elif effect=='goodbad_stabvol':
-                            code.append(basecode[0]*basecode[1])
+                        elif effect == 'goodbad_stabvol':
+                            code.append(basecode[0] * basecode[1])
                         elif effect == 'rewpain':
                             code.append(basecode[2])
                         elif effect == 'rewpain_goodbad':
@@ -336,30 +333,30 @@ def get_param_by_subj_by_cond(Theta,
                         elif effect == 'rewpain_goodbad_stabvol':
                             code.append(basecode[2] * basecode[0] * basecode[1])
 
-
-
-                    if transform=='invlogit':
+                    if transform == 'invlogit':
                         try:
-                            param[subj,ci] = (scipy.special.expit(np.sum(np.array(code)*B_trace[subj,:])))
+                            param[subj, ci] = (scipy.special.expit(np.sum(np.array(code) * B_trace[subj, :])))
                         except:
-                            import pdb; pdb.set_trace()
-                    elif transform=='exp':
-                        param[subj,ci] = (np.exp(np.sum(np.array(code)*B_trace[subj,:])))
-                    elif transform=='None':
-                        param[subj,ci] = ((np.sum(np.array(code)*B_trace[subj,:])))
-                    elif transform=='invlogit5':
+                            import pdb;
+                            pdb.set_trace()
+                    elif transform == 'exp':
+                        param[subj, ci] = (np.exp(np.sum(np.array(code) * B_trace[subj, :])))
+                    elif transform == 'None':
+                        param[subj, ci] = ((np.sum(np.array(code) * B_trace[subj, :])))
+                    elif transform == 'invlogit5':
                         try:
-                            param[subj,ci] = (5*scipy.special.expit(np.sum(np.array(code)*B_trace[subj,:])))
+                            param[subj, ci] = (5 * scipy.special.expit(np.sum(np.array(code) * B_trace[subj, :])))
                         except:
-                            import pdb; pdb.set_trace()
+                            import pdb;
+                            pdb.set_trace()
 
-                    ci+=1
+                    ci += 1
                     conds.append(block)
 
-    return(param,conds)
+    return (param, conds)
 
 
-def param_by_factor_score(trace,df_data,model,
+def param_by_factor_score(trace, df_data, model,
                           param='lr',
                           pc='u_PC1',
                           ax=None,
@@ -478,11 +475,10 @@ def param_by_factor_score(trace,df_data,model,
     plt.legend(loc=legendloc, ncol=2, bbox_to_anchor=legend_anchor, fontsize=fontsize - 1)
     plt.xlim(np.min(pos) - 0.6, np.max(pos) + 0.6)
 
-    plt.ylim([0,1])
+    plt.ylim([0, 1])
 
 
-
-def extract_distribution_mean_hdpis(trace=None,model=None,
+def extract_distribution_mean_hdpis(trace=None, model=None,
                                     factor='u',
                                     param='lr'):
     #function to extract mean parameter values and 95% hdpis
@@ -504,12 +500,12 @@ def extract_distribution_mean_hdpis(trace=None,model=None,
     upper_interval[:] = np.nan
 
     for ii, (pii, pi, param) in enumerate(zip(piis, pis, params_tmp)):
-        mu = np.round(np.mean(trace[factor][:, pi], axis=0),2)
+        mu = np.round(np.mean(trace[factor][:, pi], axis=0), 2)
 
         # calculate eror bars
         interval = pm.stats.hpd(trace[factor][:, pi].flatten(), alpha=0.05)
-        lower2p5 = round(interval[0],2)
-        upper97p5 = round(interval[1],2)
+        lower2p5 = round(interval[0], 2)
+        upper97p5 = round(interval[1], 2)
 
         mean_array[ii] = mu
         lower_interval[ii] = lower2p5
@@ -522,32 +518,31 @@ def extract_distribution_mean_hdpis(trace=None,model=None,
     df_hdi['upper_hdi'] = upper_interval
     df_hdi['param'] = params_model_name
 
-
     return df_hdi
 
 
-def plot_param_separated_by_domain(trace,df_data,model,
-                          param='lr',
-                          pc='u_PC1',
-                          ax=None,
-                          task=None,
-                          median=False,
-                          split='mean',
-                          transform='invlogit',
-                          legendloc='best',
-                          legend=True,
-                          fontsize=7,
-                          color='black',
-                          title=True,
-                          scatter_offset=0,
-                          markersize=3,
-                          elinewidth=1,
-                          rotation=45,
-                          s=1,
-                          include_errorbar=True,
-                          ebar_offset=0,
-                          legend_anchor=[0.45, -0.9]
-                          ):
+def plot_param_separated_by_domain(trace, df_data, model,
+                                   param='lr',
+                                   pc='u_PC1',
+                                   ax=None,
+                                   task=None,
+                                   median=False,
+                                   split='mean',
+                                   transform='invlogit',
+                                   legendloc='best',
+                                   legend=True,
+                                   fontsize=7,
+                                   color='black',
+                                   title=True,
+                                   scatter_offset=0,
+                                   markersize=3,
+                                   elinewidth=1,
+                                   rotation=45,
+                                   s=1,
+                                   include_errorbar=True,
+                                   ebar_offset=0,
+                                   legend_anchor=[0.45, -0.9]
+                                   ):
     # set current axis
     plt.sca(ax)
 
@@ -578,7 +573,7 @@ def plot_param_separated_by_domain(trace,df_data,model,
                                            index=pis,
                                            effects=effects,
                                            transform=transform,
-                                           domain=['rew','pain'],
+                                           domain=['rew', 'pain'],
                                            n_subs=len(participant_sel))
 
     params = params_tmp
@@ -620,7 +615,6 @@ def plot_param_separated_by_domain(trace,df_data,model,
         extra_legend_scatter1 = 'individual '
         extra_legend_scatter2 = ''
 
-
     # scatter individuals
     mean_arr = np.empty(len(pos))
     mean_arr[:] = np.nan
@@ -628,7 +622,6 @@ def plot_param_separated_by_domain(trace,df_data,model,
     yerr_arr[:] = np.nan
     std_arr = np.empty(len(pos))
     std_arr[:] = np.nan
-
 
     for j, i in enumerate(pos):  # j is 1-4, i can be 4-8
         y = lrs[idx, i]
@@ -654,10 +647,10 @@ def plot_param_separated_by_domain(trace,df_data,model,
                      linestyle='None', marker='o', markersize=markersize)
 
     if title:
-        title= task + ' domain'
+        title = task + ' domain'
         plt.title(title, fontsize=fontsize)
 
-    plt.xticks(np.arange(len(pos)), conds[pos[0]:pos[-1]+1], rotation=rotation,
+    plt.xticks(np.arange(len(pos)), conds[pos[0]:pos[-1] + 1], rotation=rotation,
                fontsize=fontsize);
     plt.ylabel('Learning rate', fontsize=fontsize)
     plt.yticks(fontsize=fontsize)
@@ -669,14 +662,15 @@ def plot_param_separated_by_domain(trace,df_data,model,
 
 
 def get_boxplot(ax, data, positions, color, whiskerprops, meanprops, medianprops):
-        """Generate a boxplot."""
-        return ax.boxplot(data, positions=positions, patch_artist=True, showfliers=False,
-                          boxprops=dict(alpha=0.5, linewidth=0.5, facecolor=color),
-                          whiskerprops=whiskerprops, capprops=whiskerprops,
-                          medianprops=medianprops, meanprops=meanprops, showmeans=False)
+    """Generate a boxplot."""
+    return ax.boxplot(data, positions=positions, patch_artist=True, showfliers=False,
+                      boxprops=dict(alpha=0.5, linewidth=0.5, facecolor=color),
+                      whiskerprops=whiskerprops, capprops=whiskerprops,
+                      medianprops=medianprops, meanprops=meanprops, showmeans=False)
 
-def plot_descriptive_boxplots(df, ax, colors, fontsize=7, prefix=None, order=None, title=True, Legend=False, xlabel=None, ylabel=None, min_val=None, max_val=None, stat='mannU'):
 
+def plot_descriptive_boxplots(df, ax, colors, fontsize=7, prefix=None, order=None, title=True, Legend=False,
+                              xlabel=None, ylabel=None, min_val=None, max_val=None, stat='mannU'):
     # Plot switch rates in stable vs volatile blocks
     prefix_stable = prefix + '_B0'
     prefix_volatile = prefix + '_B1'
@@ -684,7 +678,6 @@ def plot_descriptive_boxplots(df, ax, colors, fontsize=7, prefix=None, order=Non
     # separate data into low and high G
     df_lowG = df[df['G_Category'] == 'Low']
     df_highG = df[df['G_Category'] == 'High']
-
 
     whiskerprops = dict(color='k', linewidth=0.5)
     meanprops = None
@@ -696,9 +689,10 @@ def plot_descriptive_boxplots(df, ax, colors, fontsize=7, prefix=None, order=Non
     ps = [0, 0.5, 2, 2.5]
 
     # Plot boxplots
-    bp1 = get_boxplot(ax, [df_lowG[prefix_stable], df_lowG[prefix_volatile]], [0, 2], colors[0], whiskerprops, meanprops, medianprop)
-    bp2 = get_boxplot(ax, [df_highG[prefix_stable], df_highG[prefix_volatile]], [0.5, 2.5], colors[1], whiskerprops, meanprops, medianprop)
-
+    bp1 = get_boxplot(ax, [df_lowG[prefix_stable], df_lowG[prefix_volatile]], [0, 2], colors[0], whiskerprops,
+                      meanprops, medianprop)
+    bp2 = get_boxplot(ax, [df_highG[prefix_stable], df_highG[prefix_volatile]], [0.5, 2.5], colors[1], whiskerprops,
+                      meanprops, medianprop)
 
     for i in range(len(data_to_plot)):
         y = data_to_plot[i]
@@ -757,3 +751,52 @@ def plot_descriptive_boxplots(df, ax, colors, fontsize=7, prefix=None, order=Non
     stats_data['Statistic'] = [f"{prefix}_{stat}" for stat in stats_data['Statistic']]
 
     return stats_data if title else (stats_data, round(p_stable, 2), round(p_volatile, 2))
+
+
+# PPC plot
+def plot_ppc(
+        df: pd.DataFrame,
+        x: str,
+        y: str,
+        yerr: str,
+        ax: plt.Axes,
+        label: str = None,
+        line_limits: float = 90,
+        ax_subt: float = 2,
+        xlabel: str = None,
+        ylabel: str = None,
+        fontsize: int = 7,
+        title: bool = False,
+        title_str: str = None
+) -> None:
+    # Create the error bar plot for PPC
+
+    ax.errorbar(df[x], df[y],
+                yerr=df[yerr], fmt='o', capsize=0, alpha=0.7, label=label,
+                markersize=3, markerfacecolor='none', elinewidth=0.25, markeredgewidth=0.6)
+
+    # add a straight line showing correlation of 1
+    ax.plot([0, line_limits], [0, line_limits], linestyle='-', color='k', linewidth=0.5, alpha=0.5)
+
+    # set the same limits for x- and y- axes
+    min_limit = min(min(df[x]), min(df[x])) - ax_subt
+    max_limit = max(max(df[x]), max(df[y])) + ax_subt
+    ax.set_xlim(min_limit, max_limit)
+    ax.set_ylim(min_limit, max_limit)
+    PPC_ax_setup(ax, xlabel=xlabel, ylabel=ylabel, fontsize=fontsize)
+
+    if (title):
+        # calculate spearman correlation between ppc and original data
+        r_val, _ = stats.spearmanr(df[x], df[y])
+        title = title_str + str(np.round(r_val, 2))
+        ax.set_title(title, fontsize=fontsize)
+
+
+def PPC_ax_setup(ax, xlabel=None, ylabel=None, fontsize=7):
+    # set the x and y labels
+    ax.set_xlabel(xlabel, fontsize=fontsize)
+    ax.set_ylabel(ylabel, fontsize=fontsize)
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
+    ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
+    ax.xaxis.set_tick_params(labelsize=fontsize)
+    ax.yaxis.set_tick_params(labelsize=fontsize)
