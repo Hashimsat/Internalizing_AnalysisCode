@@ -30,8 +30,9 @@ class RegVars:
         self.lambda_1 = 'lambda_1'
 
         # Variable names of update regressors (independent of noise terms)
-        self.which_update_regressors = ['int', 'delta_t', 'delta_tau_t', 'delta_omega_t', 'delta_alpha_t', 'delta_HazardRateLevel',
-                                 'delta_StochasticityLevel', 'delta_HitMiss', 'delta_HRStoch']
+        self.which_update_regressors = ['int', 'delta_t', 'delta_tau_t', 'delta_omega_t', 'delta_alpha_t',
+                                        'delta_HazardRateLevel', 'delta_StochasticityLevel', 'delta_HitMiss',
+                                        'delta_HRStoch']
 
         # Select staring points (used if rand_sp = False)
         self.beta_0_x0 = 0

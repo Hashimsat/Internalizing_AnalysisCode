@@ -5,19 +5,28 @@
 import numpy as np
 import pandas as pd
 from functions.util_functions import circular_distance
-import math
-
 
 
 def task_agent_int(df, agent, agent_vars, sim=False):
-    """ This function models the interaction between task and agent (RBM)
-
-    :param df: Data frame with relevant data
-    :param agent: Agent-object instance
-    :param agent_vars: Agent-variables-object instance
-    :param sim: Indicates if function is currently used for simulations or not
-    :return: llh_mix, df_data: Negative log-likelihoods of mixture model and data frame with with simulation results
     """
+        Models the interaction between the task and the agent (Reduced Bayesian Model).
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Data frame containing relevant data for the task.
+        agent : AgentClass
+            Instance of the agent class, which includes the `learn` method.
+        agent_vars : AgentVarsClass
+            Instance of the agent variables class, containing initialization parameters
+        sim : bool, optional
+            Indicates whether the function is used for simulations (default is False).
+
+        Returns
+        -------
+        df_data: pandas.DataFrame
+            Data frame containing simulation results and model variables.
+        """
 
     # Extract and initialize relevant variables
     # -----------------------------------------
@@ -33,7 +42,7 @@ def task_agent_int(df, agent, agent_vars, sim=False):
 
     # Prediction error
     if not sim:
-        delta = np.deg2rad(df['PredictionError']) # prediction error in radians
+        delta = np.deg2rad(df['PredictionError'])  # prediction error in radians
     else:
         delta = np.full(len(df), np.nan)
 
@@ -47,16 +56,16 @@ def task_agent_int(df, agent, agent_vars, sim=False):
     # Cycle over trials
     # -----------------
 
-    for t in range(0, n_trials-1):
+    for t in range(0, n_trials - 1):
 
         # Extract noise value from data for each trial
         agent.sigma = np.deg2rad(df['PredatorStd'][t])
 
         # Use hazard rate specific for each block if it differs between blocks, otherwise use hazard rate of 0.1
         if 'HazardLevel' in df.columns:
-            if (df['HazardLevel'][t] == 0):
+            if df['HazardLevel'][t] == 0:
                 agent.h = 0.10  # using the empirical hazard rate
-            elif (df['HazardLevel'][t] == 1):
+            elif df['HazardLevel'][t] == 1:
                 agent.h = 0.16
 
         else:
@@ -91,23 +100,23 @@ def task_agent_int(df, agent, agent_vars, sim=False):
                 # # # Adjust for circular task. This is necessary because the model makes different trial-by-trial
                 # # # predictions than participants, where we corrected for this already during preprocessing
 
-                if (not np.isnan(sim_y_t[t])):
+                if not np.isnan(sim_y_t[t]):
                     sim_y_t[t] = sim_y_t[t] % 360
 
         # Record relative uncertainty of current trial
         tau[t] = agent.tau_t
 
         # For all but last trials of a block:
-        if (df['time'][t + 1] == df['time'][t]):
+        if df['time'][t + 1] == df['time'][t]:
 
             # Sequential belief update
             if sim:
                 # We calculate prediction error between actual predator location and model belief
-                delta[t] = np.deg2rad(circular_distance(df['PredatorAngle'][t],np.rad2deg(sim_b_t[t])))
-                agent.learn(delta[t], sim_b_t[t],0, df['PredatorMean'][t], 0)
+                delta[t] = np.deg2rad(circular_distance(df['PredatorAngle'][t], np.rad2deg(sim_b_t[t])))
+                agent.learn(delta[t], sim_b_t[t], 0, df['PredatorMean'][t], 0)
             else:
                 # We take the actual participant prediction error on that trial
-                agent.learn(delta[t], df['torchAngle'][t], 0,df['PredatorMean'][t], 0)
+                agent.learn(delta[t], df['torchAngle'][t], 0, df['PredatorMean'][t], 0)
 
             # Record updated belief
             mu[t] = agent.mu_t
@@ -135,9 +144,7 @@ def task_agent_int(df, agent, agent_vars, sim=False):
     df_data['trialNumber'] = df['trialNumber']
     df_data['HitMiss'] = df['HitMiss']
 
-
     if sim:
-
         # Save simulation-related variables
         df_data['sim_b_t'] = sim_b_t
         df_data['sim_a_t'] = sim_a_t

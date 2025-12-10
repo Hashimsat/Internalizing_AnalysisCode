@@ -14,6 +14,7 @@ if __name__ == '__main__':
     import random
     import os
     import sys
+
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from RegVars_Predator import RegVars
     from RegressionChildPredator import RegressionChildPredator
@@ -30,8 +31,9 @@ if __name__ == '__main__':
     # -----------------
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     df = pd.read_csv(os.path.join(base_dir, "data/predator_task/df_predator_4expdata_combined.csv"))
-    qns_totalscore = pd.read_csv(os.path.join(base_dir, "data/factor_analysis/questionnaires_totalscores_subscales.csv"), sep=',')
-    factor_scores = pd.read_csv(os.path.join(base_dir,'data/factor_analysis/factor_scores.csv'))
+    qns_totalscore = pd.read_csv(
+        os.path.join(base_dir, "data/factor_analysis/questionnaires_totalscores_subscales.csv"), sep=',')
+    factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
     data_folder = base_dir + "/Supplementary_Analysis/supplementary_data/predator_task/"
 
@@ -42,7 +44,8 @@ if __name__ == '__main__':
     # 2. Preprocess data
     # --------------
     # Preprocess qns data
-    df_qnstotal_subset,_ = qns_factor_preprocessing(qns_totalscore, factor_scores, merge_both=False, drop_non_binary=True)
+    df_qnstotal_subset, _ = qns_factor_preprocessing(qns_totalscore, factor_scores, merge_both=False,
+                                                     drop_non_binary=True)
 
     # Merge predator data with qns data,so we only have participants that completed both the questionnaire and the tasks
     df = df.merge(df_qnstotal_subset, on='subjectID')
@@ -100,7 +103,6 @@ if __name__ == '__main__':
     print("All prediction errors equal: " + str(same_delta))
     print("Make sure that the model parameters are set to normative values")
 
-
     # --------------------------
     # 5. Run regression analysis
     # --------------------------
@@ -149,7 +151,7 @@ if __name__ == '__main__':
     predator_regression = RegressionChildPredator(reg_vars)  # regression object instance
 
     # Drop nans if any exist and initialize group column (group not used in this analysis)
-    df_pred = df.dropna(subset=['PredictionError','omega_t', 'a_t']).reset_index()
+    df_pred = df.dropna(subset=['PredictionError', 'omega_t', 'a_t']).reset_index()
     df_pred['group'] = 1
 
     # Split data into even and odd trials for the regression
@@ -159,7 +161,6 @@ if __name__ == '__main__':
     elif split == 'odd':
         df_pred = df_pred[df_pred['trialNumber'] % 2 != 0].reset_index(drop=True)
 
-
     # Run regression
     # --------------
     results_df = predator_regression.parallel_estimation(df_pred, prior_columns)
@@ -168,5 +169,3 @@ if __name__ == '__main__':
     name = 'df_predator_4exp_model_PEAlphaValence_split=' + split + '.csv'
     savename = os.path.join(data_folder, name)
     results_df.to_csv(savename)
-
-

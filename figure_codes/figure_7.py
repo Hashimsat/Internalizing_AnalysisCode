@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
 import seaborn as sns
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_subplots, plot_image
 
@@ -20,7 +21,8 @@ figure_folder = base_dir + '/figures/'
 df_vkf_sim = pd.read_csv(os.path.join(base_dir, 'data/reversal_task/VKF_Lambda0.1_v0.1_w0.05_Sim.csv'))
 
 # Picture paths
-path = [base_dir + '/figures/generated_anims/Stimulus_grey_noText.png', base_dir + '/figures/generated_anims/Choice_grey_noText.png',
+path = [base_dir + '/figures/generated_anims/Stimulus_grey_noText.png',
+        base_dir + '/figures/generated_anims/Choice_grey_noText.png',
         base_dir + '/figures/generated_anims/Result_grey_noText.png']
 
 # -----------------
@@ -40,9 +42,8 @@ f.canvas.draw()
 gs_0 = gridspec.GridSpec(2, 2, wspace=0.25, hspace=0.25, top=0.95, bottom=0.1, left=0.15, right=0.98)
 
 # Set plot colors
-colors = ["#80cdc1",'#a17ab1', "#dfc27d", "#018571"]
+colors = ["#80cdc1", '#a17ab1', "#dfc27d", "#018571"]
 sns.set_palette(sns.color_palette(colors))
-
 
 # ----------------------------
 # 3. Plot task trial schematic
@@ -65,33 +66,32 @@ image_y = 0.85
 text_y_dist = [0.20, 0.20, 0.26]
 text_pos = 'left'
 
-text_kwargs = {'fontsize':fontsize-3.72, 'color': 'white',
+text_kwargs = {'fontsize': fontsize - 3.72, 'color': 'white',
                'horizontalalignment': 'center',
                'verticalalignment': 'center'
                }
 
-text_kwargs_rew = {'fontsize':fontsize-3.85, 'color': '#00f857',
-               'horizontalalignment': 'center',
-               'verticalalignment': 'center'
-               }
+text_kwargs_rew = {'fontsize': fontsize - 3.85, 'color': '#00f857',
+                   'horizontalalignment': 'center',
+                   'verticalalignment': 'center'
+                   }
 
 # Cycle over images
 for i in range(0, len(path)):
 
     # Plot images and text
-    ax,bbox,ab = plot_image(f, path[i], cell_x0, cell_x1, image_y, ax_0, text_y_dist[i], text[i], text_pos, fontsize, zoom=0.05)
-    if (i==len(path)-1):
+    ax, bbox, ab = plot_image(f, path[i], cell_x0, cell_x1, image_y, ax_0, text_y_dist[i], text[i], text_pos, fontsize,
+                              zoom=0.05)
+    if i == len(path) - 1:
         text_add = f'Trials Left: 79\nScore: 10'
         ax.text(bbox.x0 + 0.25, bbox.y1 - 0.055, text_add, zorder=5, **text_kwargs)
 
         # green text for reward
         text_rew = f'Reward\n +10'
-        ax.text(bbox.x0 + 0.255, bbox.y1-0.13, text_rew, zorder=5, **text_kwargs_rew)
+        ax.text(bbox.x0 + 0.255, bbox.y1 - 0.13, text_rew, zorder=5, **text_kwargs_rew)
     else:
-        text_add=f'Trials Left: 80\nScore: 0'
+        text_add = f'Trials Left: 80\nScore: 0'
         ax.text(bbox.x0 + 0.25, bbox.y1 - 0.055, text_add, zorder=5, **text_kwargs)
-
-
 
     # Update coordinates
     cell_x0 += 0.25
@@ -118,9 +118,9 @@ reward_probs[:180] = stable_rp  # First 180 trials
 # Switch reward probability between 0.8 and 0.2 every 20 trials for the last 140 trials
 for i in range(180, 320, 20):
     if (i // 20) % 2 == 0:
-        reward_probs[i:i+20] = 1 - volatile_rp
+        reward_probs[i:i + 20] = 1 - volatile_rp
     else:
-        reward_probs[i:i+20] = volatile_rp
+        reward_probs[i:i + 20] = volatile_rp
 
 # Shade the first 180 trials
 ax_1.axvspan(0, 180, facecolor='lightgrey', alpha=0.5)
@@ -147,7 +147,7 @@ plt.yticks(fontsize=fontsize)
 # -----------------
 # 5. Plot VKF simulations
 # -----------------
-gs_00 = gridspec.GridSpecFromSubplotSpec(3, 1, subplot_spec=gs_0[0:2,1])
+gs_00 = gridspec.GridSpecFromSubplotSpec(3, 1, subplot_spec=gs_0[0:2, 1])
 ax2_1 = plt.Subplot(f, gs_00[1, 0])
 f.add_subplot(ax2_1)
 color = '#77AADD'
@@ -158,9 +158,9 @@ ax2_1.axvline(x=180, color='#FFAABB', linestyle='--', zorder=2)
 
 # create a vertical line whenever reward probability changes
 df_vkf_sim['reversal'] = 0
-for i in range(181,len(df_vkf_sim)):
-    if (df_vkf_sim['reward_probability'][i] != df_vkf_sim['reward_probability'][i - 1]):
-        ax2_1.axvline(x=i, color='#808080', linestyle='--',linewidth=0.5, alpha=0.5, zorder=1)
+for i in range(181, len(df_vkf_sim)):
+    if df_vkf_sim['reward_probability'][i] != df_vkf_sim['reward_probability'][i - 1]:
+        ax2_1.axvline(x=i, color='#808080', linestyle='--', linewidth=0.5, alpha=0.5, zorder=1)
         df_vkf_sim['reversal'][i] = 1
 
 ax2_1.axvspan(0, 180, facecolor='lightgrey', alpha=0.5)
@@ -199,8 +199,9 @@ ax2_2.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
 ax2_3 = plt.Subplot(f, gs_00[2, 0])
 f.add_subplot(ax2_3)
 
-ax2_3.plot(df_vkf_sim['Predictions'], c=color, label='Predicted', linewidth=1.25,alpha = 1, zorder=5)
-ax2_3.plot(df_vkf_sim['reward_probability'].iloc[0:319], label='True', drawstyle = 'steps-post', color = '#404040', linestyle = '--', alpha=0.6, zorder=4)
+ax2_3.plot(df_vkf_sim['Predictions'], c=color, label='Predicted', linewidth=1.25, alpha=1, zorder=5)
+ax2_3.plot(df_vkf_sim['reward_probability'].iloc[0:319], label='True', drawstyle='steps-post', color='#404040',
+           linestyle='--', alpha=0.6, zorder=4)
 
 ax2_3.scatter(range(len(df_vkf_sim)), df_vkf_sim['Outcomes'], c='g', s=0.75)
 ax2_3.axvline(x=180, color='#FFAABB', linestyle='--', zorder=2)
@@ -212,7 +213,7 @@ ax2_3.set_ylabel('Reward Probability', fontsize=fontsize)
 ax2_3.set_xlabel('Trials', fontsize=fontsize)
 ax2_3.xaxis.set_tick_params(labelsize=fontsize)
 ax2_3.yaxis.set_tick_params(labelsize=fontsize)
-ax2_3.legend(loc='upper left', fontsize=fontsize-1, handlelength=0.75, bbox_to_anchor=(0.025, 0.4))
+ax2_3.legend(loc='upper left', fontsize=fontsize - 1, handlelength=0.75, bbox_to_anchor=(0.025, 0.4))
 ax2_3.yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
 ax2_3.set_xlim(-15, 320)
 ax2_3.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
@@ -223,15 +224,13 @@ ax2_3.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
 sns.despine()
 
 # Label letters
-texts = ['a','b', '', 'c', '']
+texts = ['a', 'b', '', 'c', '']
 
 # Add labels
-label_subplots(f, texts, x_offset=0.13, y_offset=0.03,fontsize=fontsize+1)
+label_subplots(f, texts, x_offset=0.13, y_offset=0.03, fontsize=fontsize + 1)
 
 sns.despine()
-name = 'figure_7_reversal_task'+'.pdf'
+name = 'figure_7_reversal_task' + '.pdf'
 savename = os.path.join(figure_folder, name)
-plt.savefig(savename,format='pdf',dpi=700,transparent=True)
+plt.savefig(savename, format='pdf', dpi=700, transparent=True)
 plt.show()
-
-

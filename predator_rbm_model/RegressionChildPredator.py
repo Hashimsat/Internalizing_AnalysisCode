@@ -13,11 +13,17 @@ class RegressionChildPredator(RegressionParent):
     """ This class specifies the instance variables and methods for regression analysis of the predator task data."""
 
     def __init__(self, reg_vars: "RegVars"):
-        """ This function defines the instance variables unique to each instance
+        """
+        Defines the instance variables unique to each instance.
 
-            See RegVarsExample for documentation
+        Parameters
+        ----------
+        reg_vars : RegVars
+            Regression-variables-object instance.
 
-        :param reg_vars: Regression-variables-object instance
+        See Also
+        --------
+        RegVarsExample : Documentation for regression variables.
         """
 
         # Parameters from parent class
@@ -38,7 +44,6 @@ class RegressionChildPredator(RegressionParent):
         self.omikron_1 = reg_vars.omikron_1
         self.lambda_0 = reg_vars.lambda_0
         self.lambda_1 = reg_vars.lambda_1
-
 
         # Extract staring points
         self.beta_0_x0 = reg_vars.beta_0_x0
@@ -96,10 +101,18 @@ class RegressionChildPredator(RegressionParent):
 
     @staticmethod
     def get_datamat(df):
-        """ This function creates the explanatory matrix
+        """
+        Creates the explanatory matrix for regression analysis.
 
-        :param df: Data frame containing subset of data
-        :return: reg_df: Regression data frame
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            Data frame containing a subset of data.
+
+        Returns
+        -------
+        reg_df : pandas.DataFrame
+                Regression data frame with explanatory variables.
         """
 
         reg_df = pd.DataFrame(columns=['delta_t'])
@@ -107,14 +120,15 @@ class RegressionChildPredator(RegressionParent):
         reg_df['delta_t'] = df['PredictionError']
         reg_df['delta_tau_t'] = df['tau_t'] * df['PredictionError']
         reg_df['delta_omega_t'] = df['omega_t'] * df['PredictionError']
-        reg_df['delta_alpha_t'] = df['PredictionError'] * (df['omega_t'] + df['tau_t'] - (df['omega_t'] * df['tau_t']))  # CPP_new + RU_new - (CPP_new.*RU_new);
+        reg_df['delta_alpha_t'] = df['PredictionError'] * (df['omega_t'] + df['tau_t'] - (
+                    df['omega_t'] * df['tau_t']))  # CPP_new + RU_new - (CPP_new.*RU_new);
 
         # For interaction effect of PE and BlockVersion
         df.loc[df['HazardLevel'] == 0, 'HazardLevel'] = -1
         df.loc[df['StochasticityLevel'] == 0, 'StochasticityLevel'] = -1
         reg_df['delta_HazardRateLevel'] = df['PredictionError'] * df['HazardLevel']
         reg_df['delta_StochasticityLevel'] = df['PredictionError'] * df['StochasticityLevel']
-        reg_df['delta_HRStoch'] = df['PredictionError'] * df['HazardLevel'] * df['StochasticityLevel'];
+        reg_df['delta_HRStoch'] = df['PredictionError'] * df['HazardLevel'] * df['StochasticityLevel']
 
         reg_df['delta_HitMiss'] = df['PredictionError'] * df['HitMiss']
         reg_df['int'] = np.ones(len(df))
@@ -127,13 +141,15 @@ class RegressionChildPredator(RegressionParent):
         # remove nans
         reg_df = reg_df.dropna(axis=0, how='any')
 
-
         return reg_df
 
     def get_starting_point(self):
-        """ This function determines the starting points of the estimation process
+        """
+            Determines the starting points of the estimation process.
 
-        :return: x0: List with starting points
+            Returns
+            -------
+            x0 : list containing the starting points for the estimation process.
         """
 
         # Put all starting points into list
@@ -154,7 +170,7 @@ class RegressionChildPredator(RegressionParent):
                   np.random.uniform(self.omikron_1_x0_range[0], self.omikron_1_x0_range[1]),
                   np.random.uniform(self.lambda_0_x0_range[0], self.lambda_0_x0_range[1]),
                   np.random.uniform(self.lambda_1_x0_range[0], self.lambda_1_x0_range[1])
-            ]
+                  ]
 
         else:
             # Use fixed starting points
@@ -172,17 +188,27 @@ class RegressionChildPredator(RegressionParent):
                   self.omikron_1_x0,
                   self.lambda_0_x0,
                   self.lambda_1_x0
-            ]
+                  ]
 
         return x0
 
     def sample_data(self, df_params, n_trials=None, allSubBehavData=None):
-        """ This function samples the data for simulations
+        """
+        Samples the data for simulations.
 
-        :param df_params: Regression paramters for simulation
-        :param n_trials: Number of trials
-        :param allSubBehavData: Optional subject behavioral data
-        :return: Sampled regression updates
+        Parameters
+        ----------
+        df_params : pandas.DataFrame
+                    Regression parameters for simulation.
+        n_trials : int, optional
+                    Number of trials to simulate.
+        allSubBehavData : pandas.DataFrame, optional
+                        Subject behavioral data for simulations.
+
+        Returns
+        -------
+        df_sim: pandas.DataFrame
+                Sampled regression updates.
         """
 
         # Number of simulations
@@ -222,8 +248,8 @@ class RegressionChildPredator(RegressionParent):
                 # Optionally based on subject data:
 
                 # Logical index for ID
-                Subjects = allSubBehavData["subjectID"].unique()
-                subj = Subjects[i]
+                subjects = allSubBehavData["subjectID"].unique()
+                subj = subjects[i]
 
                 df_data = allSubBehavData.loc[(allSubBehavData['subjectID'] == subj)]
 
@@ -267,8 +293,7 @@ class RegressionChildPredator(RegressionParent):
             else:
                 # Motor noise only
                 kappa_up = 1 / (
-                sel_coeffs['omikron_0'])  # np.full(len(datamat), sel_coeffs[sum(self.regressionComponents)])
-
+                    sel_coeffs['omikron_0'])  # np.full(len(datamat), sel_coeffs[sum(self.regressionComponents)])
 
             # Compute update
             a_t_hat_omik = np.random.vonmises(a_t_hat, kappa_up)

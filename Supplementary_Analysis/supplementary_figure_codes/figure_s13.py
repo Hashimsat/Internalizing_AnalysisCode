@@ -1,4 +1,5 @@
-# Plot a figure for the control study with single predator condition (SPC) which shows descriptive as well as model based results
+# Plot a figure for the control study with single predator condition (SPC) which shows descriptive
+# as well as model based results
 
 import numpy as np
 import pandas as pd
@@ -20,7 +21,8 @@ figure_folder = target_dir + "/supplementary_figures"
 ml_data = pd.read_csv(os.path.join(target_dir, 'supplementary_data/predator_task/df_model_exp_SPC.csv'))
 df_SPC = pd.read_csv(os.path.join(target_dir, 'supplementary_data/predator_task/df_behav_exp_SPC.csv'))
 
-qns_totalscore = pd.read_csv(os.path.join(target_dir, 'supplementary_data/factor_analysis/qnsdata_exp_SPC.csv'),sep=';')
+qns_totalscore = pd.read_csv(os.path.join(target_dir, 'supplementary_data/factor_analysis/qnsdata_exp_SPC.csv'),
+                             sep=';')
 factor_scores = pd.read_csv(os.path.join(target_dir, 'supplementary_data/factor_analysis/Predator_FS_SPC.csv'))
 
 # -----------------
@@ -121,19 +123,20 @@ EE_IQR = np.percentile(df_EE['EE'], [25, 75])
 LR_IQR = np.percentile(df_LR['LR'], [25, 75])
 
 stats_SPC = {'Statistic': ['mean_EE', 'std_EE', 'mean_LR', 'std_LR',
-                          'median_EE', 'median_EE_IQIlow', 'median_EE_IQIhigh',
-                          'median_LR', 'median_LR_IQIlow', 'median_LR_IQIhigh',
-                          'r_EE', 'r_LR', 'r_b1', 'r_b4',
-                          'p_EE', 'p_LR', 'p_b1', 'p_b4',
-                          't_EE', 't_LR', 't_b1', 't_b4',
-                          'n_total'],
-            'Values': [np.nanmean(df_EE['EE']), np.nanstd(df_EE['EE']), np.nanmean(df_LR['LR']), np.nanstd(df_LR['LR']),
-                       np.nanmedian(df_EE['EE']), EE_IQR[0], EE_IQR[1],
-                       np.nanmedian(df_LR['LR']), LR_IQR[0], LR_IQR[1],
-                       r_EE, r_LR, r, r_ad,
-                       p_EE, p_LR, p_b1, p_b4,
-                       t_EE, t_LR, t_FLR, t_ad_LR,
-                       int(len(ml_data))]}
+                           'median_EE', 'median_EE_IQIlow', 'median_EE_IQIhigh',
+                           'median_LR', 'median_LR_IQIlow', 'median_LR_IQIhigh',
+                           'r_EE', 'r_LR', 'r_b1', 'r_b4',
+                           'p_EE', 'p_LR', 'p_b1', 'p_b4',
+                           't_EE', 't_LR', 't_b1', 't_b4',
+                           'n_total'],
+             'Values': [np.nanmean(df_EE['EE']), np.nanstd(df_EE['EE']), np.nanmean(df_LR['LR']),
+                        np.nanstd(df_LR['LR']),
+                        np.nanmedian(df_EE['EE']), EE_IQR[0], EE_IQR[1],
+                        np.nanmedian(df_LR['LR']), LR_IQR[0], LR_IQR[1],
+                        r_EE, r_LR, r, r_ad,
+                        p_EE, p_LR, p_b1, p_b4,
+                        t_EE, t_LR, t_FLR, t_ad_LR,
+                        int(len(ml_data))]}
 
 df_stats_model_overall = pd.DataFrame(stats_SPC)
 df_stats_model_overall.set_index('Statistic', inplace=False)

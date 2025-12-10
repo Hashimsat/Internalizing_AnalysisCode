@@ -103,7 +103,7 @@ if __name__ == '__main__':
     results_w.to_csv(data_folder + name_recov, index=False)
 
     name_true = 'model_paramrec1_predator_exp4_actual_params_seed125' + '.csv'
-    df_params['subjectID'] = Subjects[:(n_subj)]
+    df_params['subjectID'] = Subjects[:n_subj]
     df_params.to_csv(data_folder + name_true, index=False)
 
     name_sim = 'model_paramrec1_predator_exp4_simulated_data_seed125' + '.csv'

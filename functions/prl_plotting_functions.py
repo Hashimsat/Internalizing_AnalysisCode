@@ -198,7 +198,7 @@ def plot_param_posterior_distribution_onesubplot(
         ax.legend(ncol=2, loc=legendloc, bbox_to_anchor=legend_anchor, fontsize=fontsize - 1)
 
     # horizontal line
-    plt.axhline(y=0, linestyle='--', color='k', linewidth=0.5, alpha=0.7);
+    plt.axhline(y=0, linestyle='--', color='k', linewidth=0.5, alpha=0.7)
 
     # set labels
     ax.set_xticks(piis)
@@ -275,12 +275,12 @@ def plot_factor_errorbar(trace=None, params=None,
 
     else:
         plt.xticks(ticks=piis, labels=[])
-    plt.yticks(fontsize=fontsize);
+    plt.yticks(fontsize=fontsize)
     plt.ylabel(ylabel, fontsize=fontsize)
     plt.xlim(np.min(piis) - 0.5, np.max(piis) + 0.5)
 
     # horizontal line
-    plt.axhline(y=0, linestyle='--', color='k', linewidth=0.5);
+    plt.axhline(y=0, linestyle='--', color='k', linewidth=0.5)
 
     if legend:
         plt.legend(loc=legendloc, ncol=1, bbox_to_anchor=legend_anchor, fontsize=fontsize - 1)

@@ -3,8 +3,6 @@
 
 import sys
 import os
-from pathlib import Path
-
 import theano
 from fit_model_to_dataset_allTasks_paramrec import fit_model
 
@@ -15,7 +13,9 @@ from reversal_task_model.model_code.model_base import *
 import ModelParams
 
 import argparse
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 
 def main():
     # This python function is a wrapper used to fit behavioral models to data.
@@ -36,7 +36,8 @@ def main():
     parser.add_argument('--subset', '-sub', type=str, default='all')
     parser.add_argument('--covariatemask', '-cm', type=str, default='None')
     parser.add_argument('--exp', '-e', type=int, default=2)
-    parser.add_argument('--task_type', '-ttype', type=str, default='NoMagVersion') #MagVersion, MagVersionBoth or NoMagVersion
+    parser.add_argument('--task_type', '-ttype', type=str,
+                        default='NoMagVersion')  # MagVersion, MagVersionBoth or NoMagVersion
     parser.add_argument('--iterate_models', '-itm', type=bool, default=False)
 
     args = parser.parse_args()
@@ -49,28 +50,28 @@ def main():
 
     # extract data
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-    if args.exp == 1: # Experiment with no reward magnitudes
+    if args.exp == 1:  # Experiment with no reward magnitudes
         pkl_path = os.path.join(base_dir, 'data/reversal_task/prl_nomag_data_model_alligned.pkl')
-        model_path = os.path.join(base_dir, 'data/reversal_task/prl_nomag_model6_covariate=Bi3itemCDM_date=2025_1_14_samples=2500tune=1200_seed=3_exp=3.pkl')
+        model_path = os.path.join(base_dir,
+                                  'data/reversal_task/prl_nomag_model6_covariate=Bi3itemCDM_date=2025_1_14_samples=2500tune=1200_seed=3_exp=3.pkl')
 
-    elif args.exp==2: # reversal learning task with reward magnitudes, either withor without loss domain
-        if args.task_type == 'MagVersion': # task that only had a reward domain
+    elif args.exp == 2:  # reversal learning task with reward magnitudes, either withor without loss domain
+        if args.task_type == 'MagVersion':  # task that only had a reward domain
             pkl_path = os.path.join(base_dir, 'data/reversal_task/prl_rewardmag_data_model_alligned.pkl')
 
-        elif args.task_type == 'MagVersionBoth': # task that had both reward and loss domain
+        elif args.task_type == 'MagVersionBoth':  # task that had both reward and loss domain
             pkl_path = os.path.join(base_dir, 'data/reversal_task/prl_rewardloss_data_model_alligned.pkl')
 
-    with open(pkl_path,'rb') as f:
-            data = pickle.load(f)
-
+    with open(pkl_path, 'rb') as f:
+        data = pickle.load(f)
 
     # Load the fitted model parameters, which will be used to generate data for parameter recovery
-    with open (model_path,'rb') as f:
+    with open(model_path, 'rb') as f:
         fitted_model = pickle.load(f)
 
     # extract the generative parameters
     Theta = fitted_model['trace']
-    Theta_gen = np.mean(Theta['Theta'],axis=0)
+    Theta_gen = np.mean(Theta['Theta'], axis=0)
 
     # if we want to run all models one by one or a specific model on data
     print(args)
@@ -82,36 +83,31 @@ def main():
         fit_model(args, params, data, Theta_gen)
 
     # First extract model types we want to run
-    elif (args.iterate_models == True):
+    elif args.iterate_models == True:
 
         if args.task_type == 'MagVersion':
             args.one_task_only = True
             # models = [str(i) for i in range(1, 10)]  # for model comparison, run model 1 to model 10
-            models = ['9']   # winning model for this experiment
+            models = ['9']  # winning model for this experiment
         elif args.task_type == 'MagVersionBoth':
             args.one_task_only = False
             # models = [str(i) for i in range(1, 13)]
-            models = [ '12',]
+            models = ['12', ]
         elif args.task_type == 'NoMagVersion':
             args.one_task_only = True
             # models = [str(i) for i in range(1, 8)]
-            models = [ '6', ]
+            models = ['6', ]
 
         # Fit all the models one by one on the data
-        for i,model in enumerate(models):
+        for i, model in enumerate(models):
             args.modelname = model
-            print('Running Model: ',args.modelname)
+            print('Running Model: ', args.modelname)
 
             model_params = ModelParams.ModelParams(args)
             params = model_params.get_params()
             print(params)
-            fit_model(args,params,data, Theta_gen)
+            fit_model(args, params, data, Theta_gen)
 
 
-if __name__=='__main__':
-        main()
-
-
-
-
-
+if __name__ == '__main__':
+    main()

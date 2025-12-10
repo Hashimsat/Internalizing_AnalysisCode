@@ -44,7 +44,6 @@ df_predator = pd.read_csv(os.path.join(base_dir, 'data/predator_task/df_predator
 qns_totalscore = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_totalscores_subscales.csv'))
 factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
-
 # -----------------
 # 2. Preprocess data
 # -----------------
@@ -54,7 +53,8 @@ df_qns, df_fs, df_merged = qns_factor_preprocessing(qns_totalscore, factor_score
 # get subjects that completed the predator task
 Subjects_predator_init = pd.unique(df_predator['subjectID'])
 # Remove elements that are NaN or 'nan'
-Subjects_predator_init = [subj for subj in Subjects_predator_init if subj is not None and subj != 'nan' and subj == subj]
+Subjects_predator_init = [subj for subj in Subjects_predator_init if
+                          subj is not None and subj != 'nan' and subj == subj]
 
 # Filter the factor score df based on the list of subjects
 df_merged = df_merged[df_merged['subjectID'].isin(Subjects_predator_init)]
@@ -71,23 +71,22 @@ std_val = df_merged['g_z'].std()
 
 # Create G_Category column based on conditions
 df_merged['G_Category'] = pd.np.where(df_merged['g_z'] > mean_val, 'High',
-                                pd.np.where(df_merged['g_z'] < mean_val, 'Low', 'Normal'))
+                                      pd.np.where(df_merged['g_z'] < mean_val, 'Low', 'Normal'))
 
 # merge with predator task data
 df_predator_merge = df_predator.merge(df_merged, on='subjectID')
 BlockVersion_predator = np.sort(pd.unique(df_predator_merge['BlockVersion']))
 Subjects_predator = pd.unique(df_predator_merge['subjectID'])
 
-
 # -----------------
 # 3. Calculate Estimation Error (EE) and Learning Rate (LR)
 # -----------------
 df_EE = EstimationError(df_predator_merge, Subjects_predator)
-df_EE_merged = df_EE.merge(df_merged,on='subjectID')
+df_EE_merged = df_EE.merge(df_merged, on='subjectID')
 df_EE_merged_LowHighAnx = df_EE_merged[df_EE_merged['G_Category'].isin(['High', 'Low'])]
 
-df_LR = SingleTrialLR(df_predator_merge,Subjects_predator,BlockName='BlockVersion')
-df_LR_merged = df_LR.merge(df_merged,on='subjectID')
+df_LR = SingleTrialLR(df_predator_merge, Subjects_predator, BlockName='BlockVersion')
+df_LR_merged = df_LR.merge(df_merged, on='subjectID')
 df_LR_merged_LowHighAnx = df_LR_merged[df_LR_merged['G_Category'].isin(['High', 'Low'])]
 
 # -----------------
@@ -105,12 +104,16 @@ gs_0 = gridspec.GridSpec(4, 4, wspace=0.8, hspace=0.85, top=0.9, bottom=0.1, lef
 # Define blocks and parameters
 blocks = [0, 1, 2, 3]
 EE_params = {
-    "boxplot": {"data": df_EE_merged_LowHighAnx, "x": "G_Category", "xlabel": "General Factor", "ylabel": "Estimation Error", "fontsize": fontsize, "stat": "ttest_ind"},
-    "regression": {"data": df_EE_merged, "x": "g", "xlabel": "General Factor", "ylabel": "Estimation Error", "fontsize": fontsize, "tstat": True, "color_index": -2, "line_color_index": -1}
+    "boxplot": {"data": df_EE_merged_LowHighAnx, "x": "G_Category", "xlabel": "General Factor",
+                "ylabel": "Estimation Error", "fontsize": fontsize, "stat": "ttest_ind"},
+    "regression": {"data": df_EE_merged, "x": "g", "xlabel": "General Factor", "ylabel": "Estimation Error",
+                   "fontsize": fontsize, "tstat": True, "color_index": -2, "line_color_index": -1}
 }
 LR_params = {
-    "boxplot": {"data": df_LR_merged_LowHighAnx, "x": "G_Category", "xlabel": "General Factor", "ylabel": "Learning Rate", "fontsize": fontsize, "stat": "ttest_ind"},
-    "regression": {"data": df_LR_merged, "x": "g", "xlabel": "General Factor", "ylabel": "Learning Rate", "fontsize": fontsize, "tstat": True, "color_index": -2, "line_color_index": -1}
+    "boxplot": {"data": df_LR_merged_LowHighAnx, "x": "G_Category", "xlabel": "General Factor",
+                "ylabel": "Learning Rate", "fontsize": fontsize, "stat": "ttest_ind"},
+    "regression": {"data": df_LR_merged, "x": "g", "xlabel": "General Factor", "ylabel": "Learning Rate",
+                   "fontsize": fontsize, "tstat": True, "color_index": -2, "line_color_index": -1}
 }
 
 # Iterate over blocks and create subplots
@@ -139,7 +142,6 @@ for i, block in enumerate(blocks):
     results[f"LR_B{block}_regression"] = result
     axes[f"LR_B{block}_regression"] = ax
 
-
 # ------------------
 # 5. FDR Correction
 # ------------------
@@ -155,7 +157,7 @@ for key, result in results.items():
 
 # Apply FDR correction
 p_corrected = sm.stats.multipletests(p_values, alpha=0.05, method='fdr_bh', is_sorted=False, returnsorted=False)
-p_corr_rounded = np.round(p_corrected[1],2)
+p_corr_rounded = np.round(p_corrected[1], 2)
 
 # ---------------
 # 6. Add stats values to subplots
@@ -179,14 +181,16 @@ for i, (key, ax) in enumerate(axes.items()):
 
 # Add vertical separation lines across the full figure (not just within subplots)
 for x_pos in [0.26, 0.51, 0.76]:  # Normalized figure positions (0 = left, 1 = right)
-    f.lines.append(plt.Line2D([x_pos, x_pos], [0, 1], transform=f.transFigure, color='#808080', linestyle='--', linewidth=0.75, alpha=0.8))
+    f.lines.append(
+        plt.Line2D([x_pos, x_pos], [0, 1], transform=f.transFigure, color='#808080', linestyle='--', linewidth=0.75,
+                   alpha=0.8))
 
 #
 # Define column titles
 column_titles = [f"Low Variability \nLow Hazard Rate",
                  f"High Variability \nLow Hazard Rate",
                  f"Low Variability \nHigh Hazard Rate",
-                 f"High Variability \nHigh Hazard Rate",]
+                 f"High Variability \nHigh Hazard Rate", ]
 
 # Add supertitles for each column (positioned at the top)
 for i, title in enumerate(column_titles):
@@ -200,7 +204,7 @@ for i, title in enumerate(column_titles):
 
 # Add labels
 texts = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']  # label letters
-label_axes(f,ax_arr, texts, x_offset=0.08, y_offset=0.02, fontsize=fontsize)
+label_axes(f, ax_arr, texts, x_offset=0.08, y_offset=0.02, fontsize=fontsize)
 
 sns.despine()
 plt.tight_layout()
@@ -212,9 +216,3 @@ name = 'figure_s5.pdf'
 savename = os.path.join(figure_folder, name)
 plt.savefig(savename, format='pdf', dpi=700, transparent=False, bbox_inches='tight')
 plt.show()
-
-
-
-
-
-

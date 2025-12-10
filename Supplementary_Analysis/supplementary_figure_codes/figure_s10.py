@@ -7,7 +7,6 @@ import sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
-import statsmodels.api as sm
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_subplots, medianprops, qns_factor_preprocessing
@@ -26,6 +25,7 @@ def plot_experiment(ax, ml_data, experiment_num, fontsize):
         f"Experiment {experiment_num}\n$r_{{fixed}}={r_b1}, p_{{fixed}}={p_b1}$\n$r_{{adaptive}}={r_b4}, p_{{adaptive}}={p_b4}$",
         fontsize=fontsize)
     return len(ml_data)
+
 
 # -----------------
 # 1. Load data
@@ -89,11 +89,11 @@ for ax in axes:
 # Plot Fixed and Adaptive LR regression against general factor for each experiment
 
 subject_counts = [
-        plot_experiment(axes[0], ml_data_exp1, 1, fontsize),
-        plot_experiment(axes[1], ml_data_exp2, 2, fontsize),
-        plot_experiment(axes[2], ml_data_exp3, 3, fontsize),
-        plot_experiment(axes[3], ml_data_exp4, 4, fontsize)
-    ]
+    plot_experiment(axes[0], ml_data_exp1, 1, fontsize),
+    plot_experiment(axes[1], ml_data_exp2, 2, fontsize),
+    plot_experiment(axes[2], ml_data_exp3, 3, fontsize),
+    plot_experiment(axes[3], ml_data_exp4, 4, fontsize)
+]
 
 # ------------------
 # 4. Add labels and save figure
@@ -106,7 +106,7 @@ label_subplots(f, texts, x_offset=0.08, y_offset=0.0)
 label_subplots(f, [f"$N$={count}" for count in subject_counts], x_offset=-0.03, y_offset=-0.025)
 sns.despine(f)
 
-name='figure_s10.pdf'
+name = 'figure_s10.pdf'
 savename = os.path.join(figure_folder, name)
 plt.savefig(savename, format='pdf', dpi=500, transparent=False, bbox_inches='tight')
 plt.show()

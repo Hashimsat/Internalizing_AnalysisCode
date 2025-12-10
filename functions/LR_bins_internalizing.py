@@ -7,8 +7,35 @@ import matplotlib.pyplot as plt
 import scipy.stats as stats
 from functions.util_functions import circular_distance, BoundLR
 
+
 def calculate_lr_stats(LR_quantiles, quantile_ranges, n_group):
-    # Calculate mean, std, sem, and confidence interval
+    """
+        Calculate the mean, standard deviation (std), standard error of the mean (sem),
+        and confidence interval (CI) for the LR quartiles.
+
+        Parameters
+        ----------
+        LR_quantiles : numpy.ndarray
+            Input array containing the data for which statistics are computed.
+        quantile_ranges : numpy.ndarray
+            Array containing ranges for the quantiles.
+        n_group : int
+            Number of subjects in the group.
+
+        Returns
+        -------
+        LR_mean : numpy.ndarray
+            Mean LR.
+        LR_std : numpy.ndarray
+            Standard deviation of the data.
+        LR_sem : numpy.ndarray
+            Standard error of the mean.
+        yerr : numpy.ndarray
+            Error bars calculated absed on confidence intervals.
+        x_PE_val : list
+            Midpoints of quantile ranges.
+        """
+
     LR_mean = np.mean(LR_quantiles, axis=0)
     LR_std = np.std(LR_quantiles, axis=0)
     LR_sem = LR_std / np.sqrt(n_group)
@@ -19,12 +46,12 @@ def calculate_lr_stats(LR_quantiles, quantile_ranges, n_group):
 
     # Calculate X-axis values (midpoints of quantile ranges)
     quartile_range_means = np.mean(quantile_ranges, axis=0)
-    X_PE_val = [(a + b) / 2 for a, b in zip(quartile_range_means[:-1], quartile_range_means[1::])]
+    x_PE_val = [(a + b) / 2 for a, b in zip(quartile_range_means[:-1], quartile_range_means[1::])]
 
-    return LR_mean, LR_std, LR_sem, yerr, X_PE_val
+    return LR_mean, LR_std, LR_sem, yerr, x_PE_val
 
-def plot_errorbars(x,y,yerr,ax,color,label):
 
+def plot_errorbars(x, y, yerr, ax, color, label):
     # plot errorbars for low and high anx groups
     ax.errorbar(x, y, yerr=yerr, capsize=1, c=color, marker='o',
                 elinewidth=1, barsabove=False, ecolor='k', alpha=0.7,
@@ -36,10 +63,36 @@ def plot_errorbars(x,y,yerr,ax,color,label):
                 )
 
 
-def learning_rate_descriptive_internalizing(df_data,n_lowG,n_highG,ax,Subjects,colors,fontsize,n_bins=19):
-    # Gets a dataframe already separated into low and high internalizing, an axis on which to plot the figure.
+def learning_rate_descriptive_internalizing(df_data, n_lowG, n_highG, ax, Subjects, colors, fontsize, n_bins=19):
+    """
+        Processes a dataframe already separated into low and high internalizing groups
+        and calculates the mean and standard deviation of learning rates (LR) for each bin
+        for each subject.
 
-    # calculate mean LR and std LR for each bin for each subject
+        Parameters
+        ----------
+        df_data : pandas.DataFrame
+            Dataframe containing the data for low and high internalizing groups.
+        n_lowG : int
+            Number of subjects in the low internalizing group.
+        n_highG : int
+            Number of subjects in the high internalizing group.
+        ax : matplotlib.axes.Axes
+            Axis on which to plot the figure.
+        Subjects : list
+            List of subject IDs.
+        colors : list
+            List of colors for plotting low and high internalizing groups.
+        fontsize : int
+            Font size for the plot labels and legend.
+        n_bins : int, optional
+            Number of bins for dividing prediction errors (default is 19).
+
+        Returns
+        -------
+        None
+            The function modifies the provided axis to include the plot.
+        """
 
     # Initialize arrays for low and high anxiety groups
     lowAnx_data = {
@@ -57,7 +110,7 @@ def learning_rate_descriptive_internalizing(df_data,n_lowG,n_highG,ax,Subjects,c
     }
 
     # Loop through each subject and calculate LR for each bin
-    for subjIndex,subj in enumerate(Subjects):
+    for subjIndex, subj in enumerate(Subjects):
         df_subj = df_data[(df_data['subjectID'] == subj)]
 
         LR_temp = np.array([])
@@ -70,8 +123,7 @@ def learning_rate_descriptive_internalizing(df_data,n_lowG,n_highG,ax,Subjects,c
             # only have PEs > 5 or < -5 to ensure we don't have PE = 0 or very small PE in denominator of LR=Update/PE
             if ((~np.isnan(df_subj['PredictionError'].iloc[i + 1])) and (df_subj['PredictionError'].iloc[i] != 0)
                     and (df_subj['torchMoved'].iloc[i] == 1) and (df_subj['torchMoved'].iloc[i + 1] == 1)
-                    and ((df_subj['PredictionError'].iloc[i]>5) or (df_subj['PredictionError'].iloc[i]<-5))):
-
+                    and ((df_subj['PredictionError'].iloc[i] > 5) or (df_subj['PredictionError'].iloc[i] < -5))):
                 Update = circular_distance(df_subj['torchAngle'].iloc[i + 1], df_subj['torchAngle'].iloc[i])
                 PE = df_subj['PredictionError'].iloc[i]
                 LR = Update / PE
@@ -80,7 +132,7 @@ def learning_rate_descriptive_internalizing(df_data,n_lowG,n_highG,ax,Subjects,c
                 PE_temp = np.append(PE_temp, PE)
                 Update_temp = np.append(Update_temp, Update)
 
-        LR_Bound = BoundLR(LR_temp) # constrain LR between 0 and 1
+        LR_Bound = BoundLR(LR_temp)  # constrain LR between 0 and 1
 
         # Separate PE and LR into quantiles
         PE_quant, b = pd.qcut(abs(PE_temp), n_bins, retbins=True, precision=3)
@@ -106,20 +158,19 @@ def learning_rate_descriptive_internalizing(df_data,n_lowG,n_highG,ax,Subjects,c
             category_data[category]["std_20quantiles"][category_data[category]["count"], :] = std_by_quantile
             category_data[category]["count"] += 1
 
-
     # Calculate mean, std, sem, and confidence interval for low and high anxiety groups
 
-    LR_20_mean_lowAnx, LR_20_std_lowAnx, LR_20_sem_lowAnx, yerr_low, X_PE_val_lowAnx = calculate_lr_stats(
+    LR_20_mean_lowAnx, LR_20_std_lowAnx, LR_20_sem_lowAnx, yerr_low, x_PE_val_lowAnx = calculate_lr_stats(
         lowAnx_data["LR_20quantiles"], lowAnx_data["quantile_ranges"], n_lowG
     )
 
-    LR_20_mean_highAnx, LR_20_std_highAnx, LR_20_sem_highAnx, yerr_high, X_PE_val_highAnx = calculate_lr_stats(
+    LR_20_mean_highAnx, LR_20_std_highAnx, LR_20_sem_highAnx, yerr_high, x_PE_val_highAnx = calculate_lr_stats(
         highAnx_data["LR_20quantiles"], highAnx_data["quantile_ranges"], n_highG
     )
 
     # Plot the errorbars
-    plot_errorbars(X_PE_val_lowAnx, LR_20_mean_lowAnx, yerr_low, ax, colors[0], 'Low G')
-    plot_errorbars(X_PE_val_highAnx, LR_20_mean_highAnx, yerr_high, ax, colors[1], 'High G')
+    plot_errorbars(x_PE_val_lowAnx, LR_20_mean_lowAnx, yerr_low, ax, colors[0], 'Low G')
+    plot_errorbars(x_PE_val_highAnx, LR_20_mean_highAnx, yerr_high, ax, colors[1], 'High G')
 
     # Set axis limits and labels
     ax = plt.gca()
@@ -130,6 +181,3 @@ def learning_rate_descriptive_internalizing(df_data,n_lowG,n_highG,ax,Subjects,c
     ax.xaxis.set_tick_params(labelsize=fontsize)
     ax.yaxis.set_tick_params(labelsize=fontsize)
     ax.set_ylim([0.2, 1])
-
-
-

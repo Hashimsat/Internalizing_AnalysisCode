@@ -4,7 +4,6 @@
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from time import sleep
 from tqdm import tqdm
 from rbm_analyses.rbm_analyses.agent_rbm.AgentRbm import AlAgent
@@ -13,17 +12,26 @@ from al_task_agent_int_rbm import task_agent_int
 import math
 
 
-def simulation(df_exp, df_model, n_subj, plot_data=False, sim=True):
-    """ This function simulates data using the mixture model
-
-    :param df_exp: Data frame containing participant data
-    :param df_model: Data frame containing model parameters
-    :param n_subj: Number of participants
-    :param plot_data: Indicates if single-trial plots for updates and predictions should be generated
-    :param sim: Indicates if prediction errors are simulated or not
-    :return: sim_est_err, sim_pers_prob, df_sim, true_params: Simulated estimation errors,
-             simulated perseveration probability, set of true parameters
+def simulation(df_exp, df_model, n_subj, sim=True):
     """
+        Simulates data using the mixture model.
+
+        Parameters
+        ----------
+        df_exp : pandas.DataFrame
+            Data frame containing participant data.
+        df_model : pandas.DataFrame
+            Data frame containing model parameters.
+        n_subj : int
+            Number of participants.
+        sim : bool, optional
+            Indicates if prediction errors are simulated or not.
+
+        Returns
+        -------
+        df_sim : pandas.DataFrame
+            Contains simulation results based on mixture model.
+        """
 
     # Inform user
     sleep(0.1)
@@ -40,10 +48,10 @@ def simulation(df_exp, df_model, n_subj, plot_data=False, sim=True):
     df_sim = pd.DataFrame()
 
     # Cycle over participants
-    Subjects = np.sort(pd.unique(df_exp['subjectID']))
+    subjects = np.sort(pd.unique(df_exp['subjectID']))
 
     # -----------------------
-    for i,subj in enumerate(Subjects):
+    for i, subj in enumerate(subjects):
 
         # Extract subject-specific data frame
         df_subj = df_exp.loc[(df_exp['subjectID'] == subj)]
@@ -78,7 +86,7 @@ def simulation(df_exp, df_model, n_subj, plot_data=False, sim=True):
         df_data = task_agent_int(df_subj, agent, agent_vars, sim=sim)
 
         # Record subject number
-        df_data['subj_num'] = i+1
+        df_data['subj_num'] = i + 1
         df_data['subjectID'] = subj
 
         # Add data to data frame
@@ -92,4 +100,3 @@ def simulation(df_exp, df_model, n_subj, plot_data=False, sim=True):
             pbar.close()
 
     return df_sim
-
