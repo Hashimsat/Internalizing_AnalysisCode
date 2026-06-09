@@ -4,6 +4,17 @@
 import pandas as pd
 import os
 import sys
+import platform
+import matplotlib
+
+# Simple cross-platform backend selection
+if platform.system() == "Linux" and not os.environ.get("DISPLAY"):
+    matplotlib.use("Agg")  # headless
+elif platform.system() == "Darwin":
+    matplotlib.use("MacOSX")  # macOS native
+else:
+    matplotlib.use("Qt5Agg")  # Linux with display, Windows, others
+
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
@@ -16,9 +27,13 @@ from functions.predator_descriptive_functions import (EstimationError_overall, P
 from functions.LR_bins_internalizing import learning_rate_descriptive_internalizing
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_descriptive_boxplots
 
-# -----------------
+# Turn interactive mode on
+plt.ion()
+
+# ------------
 # 1. Load data
-# -----------------
+# ------------
+
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 figure_folder = base_dir + '/figures/'
 
@@ -26,9 +41,9 @@ df_predator = pd.read_csv(os.path.join(base_dir, 'data/predator_task/df_predator
 qns_totalscore = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_totalscores_subscales.csv'))
 factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
-# -----------------
+# ------------------
 # 2. Preprocess data
-# -----------------
+# ------------------
 
 df_qns, df_fs, df_merged = qns_factor_preprocessing(qns_totalscore, factor_scores)
 
@@ -57,9 +72,9 @@ df_merged['G_Category'] = pd.np.where(df_merged['g_z'] > mean_val, 'High',
 df_predator_merge = df_predator.merge(df_merged, on='subjectID')
 Subjects = pd.unique(df_predator_merge['subjectID'])
 
-# -----------------
+# ---------------------------------
 # 3. Compute descriptive statistics
-# -----------------
+# ---------------------------------
 
 # Compute mean estimation errors for each subject across blocks
 df_EE = EstimationError_overall(df_predator_merge, Subjects)
@@ -80,11 +95,11 @@ df_RT_merged, df_RT_merged_LowHighAnx = combine_descriptive_with_factor_scores(d
 n_lowG = len(pd.unique(df_LR_merged_LowHighAnx[df_LR_merged_LowHighAnx['G_Category'] == 'Low']['subjectID']))
 n_highG = len(pd.unique(df_LR_merged_LowHighAnx[df_LR_merged_LowHighAnx['G_Category'] == 'High']['subjectID']))
 
-# -----------------
+# -----------
 # 4. Plotting
-# -----------------
-# Create figure
+# -----------
 
+# Create figure
 fig_width = 15
 fig_height = 10
 fontsize = 7
@@ -189,11 +204,13 @@ sns.despine(f)
 name = 'figure_4_predator_descriptive.pdf'
 savename = os.path.join(figure_folder, name)
 plt.savefig(savename, format='pdf', dpi=700, transparent=False, bbox_inches='tight')
+
+plt.ioff()
 plt.show()
 
-#  -----------------
+#  -------------------------------
 # 5. Combine stats into dataframes
-# -----------------
+# --------------------------------
 
 regression_stats = {
     'Statistic': ['B_EE', 't_EE', 'p_EE',
