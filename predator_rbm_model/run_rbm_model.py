@@ -83,6 +83,7 @@ if __name__ == '__main__':
 
     df['omega_t'] = df_sim['omega_t'].copy()
     df['tau_t'] = df_sim['tau_t'].copy()
+    df['alpha_t'] = df_sim['alpha_t'].copy()
     df['a_t'] = df_sim['actual_update'].copy()
     df_sim = df_sim.rename(columns={"a_t_hat": "a_t"})
 

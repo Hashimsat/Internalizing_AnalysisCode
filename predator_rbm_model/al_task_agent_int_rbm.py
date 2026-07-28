@@ -49,7 +49,6 @@ def task_agent_int(df, agent, agent_vars, sim=False):
     # Initialize variables related to simulations
     sim_b_t = np.full(n_trials, np.nan)  # simulated prediction
     sim_z_t = np.full(n_trials, np.nan)  # simulated initial fire location
-    sim_y_t = np.full(n_trials, np.nan)  # simulated shift of the fire
     sim_a_t = np.full(n_trials, np.nan)  # simulated update
 
     # -----------------
@@ -86,22 +85,12 @@ def task_agent_int(df, agent, agent_vars, sim=False):
                 # Set initial fire location, prediction, and push
                 sim_z_t[t] = agent_vars.mu_0
                 sim_b_t[t] = agent_vars.mu_0
-                sim_y_t[t] = 0.0
 
         # For all other trials
         else:
             if sim:
                 # For simulations, we take the actual fire location
                 sim_z_t[t] = df['torchAngle'][t]
-
-                # We compute Shift as: (y_t := z_t - b_{t-1})
-                sim_y_t[t] = sim_z_t[t] - sim_b_t[t]
-
-                # # # Adjust for circular task. This is necessary because the model makes different trial-by-trial
-                # # # predictions than participants, where we corrected for this already during preprocessing
-
-                if not np.isnan(sim_y_t[t]):
-                    sim_y_t[t] = sim_y_t[t] % 360
 
         # Record relative uncertainty of current trial
         tau[t] = agent.tau_t
@@ -148,7 +137,6 @@ def task_agent_int(df, agent, agent_vars, sim=False):
         # Save simulation-related variables
         df_data['sim_b_t'] = sim_b_t
         df_data['sim_a_t'] = sim_a_t
-        df_data['sim_y_t'] = sim_y_t
         df_data['sim_z_t'] = sim_z_t
         df_data['sigma'] = df['PredatorStd']
         df_data['PredatorAngle'] = df['PredatorAngle']

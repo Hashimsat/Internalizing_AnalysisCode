@@ -303,7 +303,7 @@ stats_model_regression_fdr = {'Statistic': ['r_b1_int', 'r_b1_g', 'r_b1_F1', 'r_
 df_stats_model_regression_fdr = pd.DataFrame(stats_model_regression_fdr)
 df_stats_model_regression_fdr.set_index('Statistic', inplace=False)
 df_stats_model_regression_fdr['Values'] = df_stats_model_regression_fdr['Values'].round(3)
-df_stats_model_regression_fdr.name = 'PredatorTask_AllModelParams_GeneralFactorRegression_FDR'
+df_stats_model_regression_fdr.name = 'predator_AllModelParams_internalizingRegression_FDR'
 
 # save mean and std of model params
 
