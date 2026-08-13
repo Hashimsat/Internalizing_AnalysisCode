@@ -105,7 +105,7 @@ def task_agent_int(df, agent, agent_vars, sim=False):
                 agent.learn(delta[t], sim_b_t[t], 0, df['PredatorMean'][t], 0)
             else:
                 # We take the actual participant prediction error on that trial
-                agent.learn(delta[t], df['torchAngle'][t], 0, df['PredatorMean'][t], 0)
+                agent.learn(delta[t], np.deg2rad(df['torchAngle'][t]), 0, np.deg2rad(df['PredatorMean'][t]), 0)
 
             # Record updated belief
             mu[t] = agent.mu_t
