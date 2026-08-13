@@ -10,7 +10,7 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from lab_scr_analysis.utils import merge_with_exclusions
+from functions.scr_utils import merge_with_exclusions
 from lab_scr_analysis.config import game_data_variables, excluded_participants
 from lab_scr_analysis.scr_data_analysis_updated import analyse_scr_data
 from lab_scr_analysis.dataframe_functions import create_average_epochs_dataframe

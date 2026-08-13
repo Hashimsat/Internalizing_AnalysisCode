@@ -2,7 +2,7 @@ from itertools import combinations
 from scipy.stats import zscore
 from config import *
 from data_processing.scr_data_processing_functions import *
-from data_processing.dataframe_functions import create_dataframe
+from dataframe_functions import create_dataframe
 from plot_scr_functions import *
 
 
