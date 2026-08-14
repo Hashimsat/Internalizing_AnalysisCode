@@ -72,6 +72,7 @@ dependencies:
   - zstd=1.5.6
   - pip:
     - acres==0.2.0
+    - allinpy==0.2.0
     - certifi==2024.12.14
     - chardet==5.2.0
     - charset-normalizer==3.4.0
@@ -84,7 +85,7 @@ dependencies:
     - etelemetry==0.3.1
     - factor-analyzer==0.5.1
     - filelock==3.16.1
-    - fitz==0.0.1.dev2
+    #- fitz==0.0.1.dev2
     - httplib2==0.22.0
     - idna==3.10
     - importlib-resources==6.5.2
@@ -108,6 +109,7 @@ dependencies:
     - puremagic==1.28
     - pydot==3.0.4
     - pyxnat==1.6.2
+    - rbmpy==0.0.2
     - rdflib==6.3.2
     - reportlab==4.2.5
     - requests==2.32.3

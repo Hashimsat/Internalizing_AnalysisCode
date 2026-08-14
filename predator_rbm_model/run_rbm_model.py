@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # Save simulation data
     name = 'normative_predator_sim.csv'
     savename_sim = os.path.join(data_folder, name)
-    # df_sim.to_csv(savename_sim)
+    df_sim.to_csv(savename_sim)
 
     # -----------------
     # 4. Extract and preprocess simulation data for running subsequent regression
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
                            reg_vars.omikron_0: True,  # motor noise  #true
                            reg_vars.omikron_1: True,  # learning rate noise
-                           reg_vars.lambda_0: False,  # mixture weight, #true
+                           reg_vars.lambda_0: False,  # mixture weight,
                            reg_vars.lambda_1: False
                            }
 
@@ -157,6 +157,9 @@ if __name__ == '__main__':
     # Run regression
     # --------------
     results_df = predator_regression.parallel_estimation(df_pred, prior_columns)
+
+    # rename ID column to subjectID
+    results_df = results_df.rename(columns={"ID": "subjectID"})
 
     # Save results
     name = 'df_predator_4exp_modelresults_redone.csv'

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import math
 from functions.util_functions import CircularDistance_Array
-from rbm_analyses.rbm_analyses.agent_rbm.AgentRbm import AlAgent
-from rbm_analyses.rbm_analyses.agent_rbm.AgentVarsRbm import AgentVars
+from rbmpy.agent_rbm.AgentRbm import AlAgent
+from rbmpy.agent_rbm.AgentVarsRbm import AgentVars
 
 # --------------
 # Set up the agent

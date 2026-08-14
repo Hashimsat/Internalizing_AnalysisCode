@@ -4,7 +4,7 @@
 
 import numpy as np
 import pandas as pd
-from functions.util_functions import circular_distance
+from rbmpy.utilities import circ_dist
 
 
 def task_agent_int(df, agent, agent_vars, sim=False):
@@ -71,7 +71,7 @@ def task_agent_int(df, agent, agent_vars, sim=False):
             agent.h = 0.1
 
         # compute actual participant update on each trial
-        actual_update[t] = np.deg2rad(circular_distance(df['torchAngle'][t + 1], df['torchAngle'][t]))
+        actual_update[t] = circ_dist(np.deg2rad(df['torchAngle'][t + 1]), np.deg2rad(df['torchAngle'][t]))
 
         # For first trial of new block
         if df['trialNumber'][t] == 1:
@@ -101,7 +101,7 @@ def task_agent_int(df, agent, agent_vars, sim=False):
             # Sequential belief update
             if sim:
                 # We calculate prediction error between actual predator location and model belief
-                delta[t] = np.deg2rad(circular_distance(df['PredatorAngle'][t], np.rad2deg(sim_b_t[t])))
+                delta[t] = circ_dist(np.deg2rad(df['PredatorAngle'][t]), sim_b_t[t])
                 agent.learn(delta[t], sim_b_t[t], 0, df['PredatorMean'][t], 0)
             else:
                 # We take the actual participant prediction error on that trial

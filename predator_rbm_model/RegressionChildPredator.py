@@ -5,8 +5,8 @@
 
 import numpy as np
 import pandas as pd
-from rbm_analyses.rbm_analyses.circular_regression.RegressionParent import RegressionParent
-from rbm_analyses.rbm_analyses.utilities import compute_persprob, residual_fun, normalize_angle
+from rbmpy.circular_regression.RegressionParent import RegressionParent
+from rbmpy.utilities import compute_persprob, residual_fun, normalize_angle
 
 
 class RegressionChildPredator(RegressionParent):
