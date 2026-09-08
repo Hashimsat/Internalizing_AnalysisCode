@@ -1,4 +1,5 @@
 # Simulation of normative learning, used in plotting normative learning example in figure 1 or in figure 5
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -7,16 +8,19 @@ from functions.util_functions import CircularDistance_Array
 from rbmpy.agent_rbm.AgentRbm import AlAgent
 from rbmpy.agent_rbm.AgentVarsRbm import AgentVars
 
-# --------------
+# ----------------
 # Set up the agent
-# -------------
+# ----------------
+
 # Agent object instance
 agent_vars = AgentVars()
 agent = AlAgent(agent_vars)
 
-# ------------------
+# ----------------------------
 # Initialize simulation params
-# -----------------
+# ----------------------------
+# todo: use function that gets called for all cases that apply. Ideally no manual input.
+
 fig_no = 1
 save_csv = True
 plot = False
@@ -67,23 +71,24 @@ for i in range(0, n_range):
     a_t[i] = np.rad2deg(agent.a_t)
     cpp[i] = agent.omega_t
 
-
+# Compute update taking circle into account
 Update = CircularDistance_Array(b_t[1:], b_t[0:len(b_t)-1])
 
-# save in dataframe
+# Save in dataframe
 if fig_no == 1:
     df_norm = pd.DataFrame({'Prediction Error': pe, 'Learning Rate': alpha, 'Belief': b_t})
 
 else:
     df_norm = pd.DataFrame({'a_t': a_t, 'alpha_i': alpha, 'PE': pe, 'CPP': cpp})
 
+# Todo: use save_safe
 if save_csv:
-    # save as csv
     df_norm.to_csv(f'../data/predator_task/simulated_normative_learning_fig{fig_no}.csv',index=False)
 
-# --------------
+# -----------------------------------------------
 # Plot PE vs Learning Rate simulation if required
-# --------------
+# -----------------------------------------------
+
 if plot:
     plt.figure()
     plt.plot(pe, alpha, color="#249886",linewidth=2, label='Normative\nLearning')
