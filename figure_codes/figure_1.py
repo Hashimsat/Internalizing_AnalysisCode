@@ -19,7 +19,7 @@ from functions.util_functions import cm2inch, label_axes, plot_opened_image_with
 
 # Load normative learning simulation
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-df_norm = pd.read_csv(os.path.join(base_dir, "data/predator_task/simulation_normative_learning.csv"))
+df_norm = pd.read_csv(os.path.join(base_dir, "data/predator_task/simulated_normative_learning_fig1.csv"))
 figure_folder = base_dir + '/figures/'
 
 # Load path to animated figures
