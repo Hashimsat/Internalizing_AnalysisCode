@@ -7,7 +7,9 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 import scipy
 from scipy import stats
-from functions.util_functions import medianprops, compute_median_iqr, compute_test_statistic
+from functions.util_functions import medianprops, compute_median_iqr, compute_test_statistic, cm2inch
+from functions.prl_descriptive_functions import calculate_switches_PPC, calculate_p_correct_PPC
+import matplotlib.gridspec as gridspec
 import pymc3 as pm
 
 name_replace = {
@@ -791,6 +793,136 @@ def plot_ppc(
         title = title_str + str(np.round(r_val, 2))
         ax.set_title(title, fontsize=fontsize)
 
+def plot_param_rec(params_recovered, theta_gen, beta_independent, fig_width=15, fig_height=15, fontsize=7, n_cols=4, n_rows=None):
+    """
+    Plot parameter recovery for the winning model for the probabilistic reversal learning task.
+
+    Parameters
+    ----------
+    params_recovered : list of str
+        List of parameter names to be plotted.
+    theta_gen : numpy.ndarray
+        Ground truth parameter values.
+    beta_independent : numpy.ndarray
+        Recovered parameter values.
+    figure_folder : str
+        Directory to save the generated figure.
+    fig_width : int, optional
+        Width of the figure in cm (default is 15).
+    fig_height : int, optional
+        Height of the figure in cm (default is 15).
+    fontsize : int, optional
+        Font size for the plot (default is 7).
+    n_cols : int, optional
+        Number of columns in the plot grid (default is 4).
+    n_rows : int, optional
+        Number of rows in the plot grid (default is None, which will be calculated based on the number of parameters and columns).
+    """
+    # Calculate correlations
+    corr = [stats.spearmanr(beta_independent[:, i], theta_gen[:, i]).correlation for i in range(beta_independent.shape[1])]
+    print(corr)
+
+    # Determine number of rows based on params_recovered and n_cols
+    if n_rows is None:
+        n_rows = int(np.ceil(len(params_recovered) / n_cols))
+
+    # Set up figure
+    # medianprop = medianprops();
+    color = ["#80cdc1", "#de77ae", "#018571", "#dfc27d", '#d492c8', '#AA4499', '#808080', "#77AADD", "#3576b8"]
+    sns.set_palette(sns.color_palette(color))
+
+    f = plt.figure(figsize=cm2inch(fig_width, fig_height))
+    f.canvas.draw()
+    gs_0 = gridspec.GridSpec(n_rows, n_cols, wspace=0.65, hspace=0.9, top=0.87, bottom=0.1, left=0.15, right=0.98)
+
+    # Plot correlations
+    for i in range(len(params_recovered)):
+        col_no = i % n_cols
+        row_no = i // n_cols
+
+        ax = plt.Subplot(f, gs_0[row_no, col_no])
+        f.add_subplot(ax)
+
+        sns.regplot(x=theta_gen[:, i].astype('float'), y=beta_independent[:, i].astype('float'),
+                    color=color[-1], robust=True, ax=ax,
+                    scatter_kws=dict(alpha=0.3, s=10, edgecolor="none", color=color[-2]),
+                    line_kws=dict(linewidth=2))
+
+        ax.set_xlabel('Ground Truth', fontsize=fontsize)
+        ax.set_ylabel('Recovered', fontsize=fontsize)
+
+        title = params_recovered[i] + '\n' + "$Spearman \ \it{ρ}$ = " + str(round(corr[i], 2))
+        ax.set_title(title, fontsize=fontsize)
+
+        ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=3))
+        ax.xaxis.set_major_locator(ticker.MaxNLocator(nbins=3))
+        ax.tick_params(axis='both', which='major', labelsize=fontsize)
+
+    sns.despine()
+    return f
+
+
+def ppc_calculate_measures(actual_data_dict, ppc_samples):
+    """
+    Calculate switch rates and P(Correct) for posterior predictive checks.
+
+    Parameters
+    ----------
+    actual_data_dict : dict
+        Dictionary containing actual data (e.g., participants' choices, outcomes, etc.).
+    ppc_samples : numpy.ndarray
+        Posterior predictive samples.
+
+    Returns
+    -------
+    df_switch : pandas.DataFrame
+        DataFrame containing switch statistics.
+    df_p_correct : pandas.DataFrame
+        DataFrame containing P(Correct) statistics.
+    p_corr_combined_arr : numpy.ndarray
+        Combined array of P(Correct) values across simulations.
+    """
+    actual_choices = actual_data_dict['participants_choice']
+    outcome = actual_data_dict['outcomes_c_flipped']
+    stabvol = actual_data_dict['stabvol']
+    dominant_fractal = actual_data_dict['dominant_fractal']
+    subjects = actual_data_dict['subjectID']
+
+    df_switch = pd.DataFrame()
+    df_p_correct = pd.DataFrame()
+    p_corr_combined_list = []
+
+    for i in range(len(subjects)):
+        ppc_subj = np.transpose(ppc_samples[:, :, i])
+        stabvol_subj = stabvol[:, i]
+
+        # Create a dataframe for the current subject
+        df = pd.DataFrame(ppc_subj)
+        df['stabvol'] = stabvol_subj
+        df['dominant_fractal'] = dominant_fractal[:, i]
+        df['outcome'] = outcome[:, i]
+        df['observed'] = actual_choices[:, i]
+
+        # Calculate switches
+        switch_stats = calculate_switches_PPC(df, observed_col='observed')
+        df_subj = pd.DataFrame([switch_stats])
+
+        # Concatenate switch stats
+        df_switch = pd.concat([df_switch, df_subj], axis=0)
+
+        # Calculate P(Correct)
+        df_subj_perf, p_correct_ppc = calculate_p_correct_PPC(df, dominant_col='dominant_fractal',
+                                                              observed_col='observed')
+
+        # Concatenate P(Correct) stats
+        df_p_correct = pd.concat([df_p_correct, df_subj_perf], axis=0)
+        p_corr_combined_list.append(p_correct_ppc)
+
+    # Combine P(Correct) arrays
+    p_corr_combined_arr = np.vstack(p_corr_combined_list)
+
+    return df_switch, df_p_correct, p_corr_combined_arr
+
 
 def PPC_ax_setup(ax, xlabel=None, ylabel=None, fontsize=7):
     # set the x and y labels
@@ -800,3 +932,59 @@ def PPC_ax_setup(ax, xlabel=None, ylabel=None, fontsize=7):
     ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
     ax.xaxis.set_tick_params(labelsize=fontsize)
     ax.yaxis.set_tick_params(labelsize=fontsize)
+
+
+def plot_ppc_allPlots(df_switch, df_p_correct, p_corr_combined_arr, axes, fontsize=7):
+    """
+    Plot posterior predictive checks (PPC) results.
+
+    Parameters
+    ----------
+    df_switch : pandas.DataFrame
+        DataFrame containing switch statistics.
+    df_p_correct : pandas.DataFrame
+        DataFrame containing P(Correct) statistics.
+    p_corr_combined_arr : numpy.ndarray
+        Combined array of P(Correct) values across simulations.
+    axes : list of matplotlib.axes.Axes
+        List of axes for plotting.
+    fontsize : int, optional
+        Font size for the plots (default is 7).
+    """
+    # Plot number of switches in stable block (PPC vs actual data)
+    plot_ppc(df_switch, 'num_switches_stable_orig', 'mean_switches_stable_sim', 'std_switches_stable_sim',
+             axes[0], ax_subt=2, xlabel='Actual # of Switches', ylabel=f"Model Generated \n# of Switches",
+             title=True, title_str=f"Stable Block \n" + "Spearman $\\it{ρ}$ = ", fontsize=fontsize)
+
+    # Plot number of switches in volatile block (PPC vs actual data)
+    plot_ppc(df_switch, 'num_switches_volatile_orig', 'mean_switches_volatile_sim', 'std_switches_volatile_sim',
+             axes[1], ax_subt=2, xlabel='Actual # of Switches', ylabel=f"Model Generated \n# of Switches",
+             title=True, title_str=f"Volatile Block \n" + "Spearman $\\it{ρ}$ = ", fontsize=fontsize)
+
+    # Plot overall P(Correct) (PPC vs actual data)
+    plot_ppc(df_p_correct, 'p_correct_orig', 'mean_p_correct',
+             'std_p_correct', axes[2], line_limits=1, ax_subt=0.02,
+             xlabel='Actual P(Correct)', ylabel=f"Model Generated \nP(Correct)",
+             title=True, title_str="Spearman $\\it{ρ}$ = ", fontsize=fontsize)
+
+    # Plot the distribution of P(Correct) across simulations
+    sns.kdeplot(np.mean(p_corr_combined_arr, axis=0), fill=True, label='Model', ax=axes[3])
+    axes[3].axvline(np.mean(df_p_correct['p_correct_orig']), color='r', linestyle='-', linewidth=1.5, label='Data')
+
+    axes[3].legend(fontsize=fontsize - 1, handlelength=0.75)
+    PPC_ax_setup(axes[3], xlabel='P(Correct)', ylabel='Posterior Density', fontsize=fontsize)
+
+
+def set_subplot_title(ax, r_stable, p_stable, r_volatile, p_volatile, fontsize):
+    title_params = f"$r_{{stable}}={r_stable}, p_{{stable}}={p_stable}$\n$r_{{volatile}}={r_volatile}, p_{{volatile}}={p_volatile}$"
+    ax.set_title(title_params, fontsize=fontsize)
+
+def label_panel(ax, letter, x, y, fontsize):
+    ax.text(x, y, letter, fontsize=fontsize, transform=ax.transAxes)
+
+def add_legend(ax, **kwargs):
+    ax.legend(**kwargs)
+
+def despine(*axes):
+    for ax in axes:
+        sns.despine(ax=ax)

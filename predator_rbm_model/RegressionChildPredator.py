@@ -5,8 +5,8 @@
 
 import numpy as np
 import pandas as pd
-from rbm_analyses.rbm_analyses.circular_regression.RegressionParent import RegressionParent
-from rbm_analyses.rbm_analyses.utilities import compute_persprob, residual_fun, normalize_angle
+from rbmpy.circular_regression.RegressionParent import RegressionParent
+from rbmpy.utilities import compute_persprob, residual_fun, normalize_angle
 
 
 class RegressionChildPredator(RegressionParent):
@@ -120,8 +120,7 @@ class RegressionChildPredator(RegressionParent):
         reg_df['delta_t'] = df['PredictionError']
         reg_df['delta_tau_t'] = df['tau_t'] * df['PredictionError']
         reg_df['delta_omega_t'] = df['omega_t'] * df['PredictionError']
-        reg_df['delta_alpha_t'] = df['PredictionError'] * (df['omega_t'] + df['tau_t'] - (
-                    df['omega_t'] * df['tau_t']))  # CPP_new + RU_new - (CPP_new.*RU_new);
+        reg_df['delta_alpha_t'] = df['PredictionError'] * df['alpha_t']  # CPP_new + RU_new - (CPP_new.*RU_new);
 
         # For interaction effect of PE and BlockVersion
         df.loc[df['HazardLevel'] == 0, 'HazardLevel'] = -1

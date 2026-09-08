@@ -53,10 +53,10 @@ Different analysis scripts use different Python environments. Use the environmen
 ##  Reduced Bayesian Model (RBM) — Predator Task
 
 The RBM implementation for the predator task is in the `predator_rbm_model/` folder.  
-The code is based on the following repositories:
+The code is based on the following packages that implement the RBM agents and models:
 
-- [rbm_analyses](https://github.com/rasmusbruckner/rbm_analyses)  
-- [all_in](https://github.com/rasmusbruckner/all_in)
+- [rbmpy](https://github.com/rasmusbruckner/rbmpy)  
+- [allinpy](https://github.com/rasmusbruckner/allinpy)
 
 To run the RBM model on the predator task data, use the `run_rbm_model.py` script with the `predator_task_env.yml` environment.
 

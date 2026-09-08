@@ -111,7 +111,7 @@ sns.despine(f)
 
 name = 'figure_s12.pdf'
 savename = os.path.join(figure_folder, name)
-plt.savefig(savename, format='pdf', dpi=700, transparent=False, bbox_inches='tight')
+# plt.savefig(savename, format='pdf', dpi=700, transparent=False, bbox_inches='tight')
 plt.show()
 
 #  -----------------

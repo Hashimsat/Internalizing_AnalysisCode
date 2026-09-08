@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from time import sleep
 from tqdm import tqdm
-from rbm_analyses.rbm_analyses.agent_rbm.AgentRbm import AlAgent
-from rbm_analyses.rbm_analyses.agent_rbm.AgentVarsRbm import AgentVars
+from rbmpy.agent_rbm.AgentRbm import AlAgent
+from rbmpy.agent_rbm.AgentVarsRbm import AgentVars
 from al_task_agent_int_rbm import task_agent_int
 import math
 

@@ -39,6 +39,7 @@ def main():
     parser.add_argument('--task_type', '-ttype', type=str,
                         default='NoMagVersion')  # MagVersion, MagVersionBoth or NoMagVersion
     parser.add_argument('--iterate_models', '-itm', type=bool, default=False)
+    parser.add_argument('--split', '-itm', type=bool, default=None)
 
     args = parser.parse_args()
 

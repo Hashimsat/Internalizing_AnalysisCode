@@ -23,6 +23,8 @@ base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 figure_folder = base_dir + '/figures/'
 
 ml_data = pd.read_csv(os.path.join(base_dir, 'data/predator_task/df_predator_4exp_modelresults.csv'))
+
+# FDR comparison calculated in the code for Supplementary Figure9 (SF9)
 df_fdr = pd.read_csv(
     os.path.join(base_dir, 'data/predator_task/predator_AllModelParams_internalizingRegression_FDR.csv'))
 

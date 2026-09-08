@@ -151,7 +151,7 @@ def fit_model(args, params, data):
     # Save name
     print('saving')
     now = datetime.datetime.now()
-    filename = 'prl2_' + args.task_type + '_model=' + args.modelname + 'try_one_task_'+str(args.one_task_only) + '_covariate=' + args.covariate + '_date='+str(now.year) + \
+    filename = 'prl_' + args.task_type + '_model=' + args.modelname + 'try_one_task_'+str(args.one_task_only) + '_covariate=' + args.covariate + '_date='+str(now.year) + \
              '_' + str(now.month) + '_' + str(now.day) + '_samples=' + str(args.steps) + '_chains=' + str(args.num_chains) + '_seed=' + str(args.seed) + '_exp='+str(args.exp)
 
     #     # Save empty placeholder

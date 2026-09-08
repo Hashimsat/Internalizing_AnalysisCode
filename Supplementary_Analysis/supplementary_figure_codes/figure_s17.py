@@ -1,16 +1,13 @@
 # Posterior-predictive checks for the winning model of the reversal learning task
 
 import pickle
-import numpy as np
 import os
-import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 from functions.util_functions import cm2inch, medianprops, label_subplots
-from functions.prl_descriptive_functions import calculate_switches_PPC, calculate_p_correct_PPC
 from functions.plotting_functions import create_subplots
-from functions.prl_plotting_functions import plot_ppc, PPC_ax_setup
+from functions.prl_plotting_functions import ppc_calculate_measures, plot_ppc_allPlots
 
 # ----------------
 # 1. Setup Data Paths
@@ -51,37 +48,7 @@ subjects = actual_data_dict['subjectID']
 # ----------------
 # 3. Calculate Switch Rates and P(Correct)
 # ----------------
-df_switch = pd.DataFrame()
-df_p_correct = pd.DataFrame()
-p_corr_combined_list = []
-
-for i in range(len(subjects)):
-    ppc_subj = np.transpose(ppc_samples[:, :, i])
-    stabvol_subj = stabvol[:, i]
-
-    # Create a dataframe for the current subject
-    df = pd.DataFrame(ppc_subj)
-    df['stabvol'] = stabvol_subj
-    df['dominant_fractal'] = dominant_fractal[:, i]
-    df['outcome'] = outcome[:, i]
-    df['observed'] = actual_choices[:, i]
-
-    # Calculate switches
-    switch_stats = calculate_switches_PPC(df, observed_col='observed')
-    df_subj = pd.DataFrame([switch_stats])
-
-    # Concatenate switch stats
-    df_switch = pd.concat([df_switch, df_subj], axis=0)
-
-    # Calculate P(Correct)
-    df_subj_perf, p_correct_ppc = calculate_p_correct_PPC(df, dominant_col='dominant_fractal', observed_col='observed')
-
-    # Concatenate P(Correct) stats
-    df_p_correct = pd.concat([df_p_correct, df_subj_perf], axis=0)
-    p_corr_combined_list.append(p_correct_ppc)
-
-# Combine P(Correct) arrays
-p_corr_combined_arr = np.vstack(p_corr_combined_list)
+df_switch, df_p_correct, p_corr_combined_arr = ppc_calculate_measures(actual_data_dict, ppc_samples)
 
 # ------------
 # 4. Figure Setup
@@ -107,29 +74,7 @@ axes = create_subplots(f, gs_0, positions)
 # ---------------
 # 5. Plot PPC
 # ---------------
-
-# Plot number of switches in stable block (PPC vs actual data)
-plot_ppc(df_switch, 'num_switches_stable_orig', 'mean_switches_stable_sim', 'std_switches_stable_sim',
-         axes[0], ax_subt=2, xlabel='Actual # of Switches', ylabel=f"Model Generated \n# of Switches",
-         title=True, title_str=f"Stable Block \n" + "Spearman $\\it{ρ}$ = ", fontsize=fontsize)
-
-# Plot number of switches in volatile block (PPC vs actual data)
-plot_ppc(df_switch, 'num_switches_volatile_orig', 'mean_switches_volatile_sim', 'std_switches_volatile_sim',
-         axes[1], ax_subt=2, xlabel='Actual # of Switches', ylabel=f"Model Generated \n# of Switches",
-         title=True, title_str=f"Volatile Block \n" + "Spearman $\\it{ρ}$ = ", fontsize=fontsize)
-
-# Plot overall P(Correct) (PPC vs actual data)
-plot_ppc(df_p_correct, 'p_correct_orig', 'mean_p_correct',
-         'std_p_correct', axes[2], line_limits=1, ax_subt=0.02,
-         xlabel='Actual P(Correct)', ylabel=f"Model Generated \nP(Correct)",
-         title=True, title_str="Spearman $\\it{ρ}$ = ", fontsize=fontsize)
-
-# Plot the distribution of P(Correct) across simulations
-sns.kdeplot(np.mean(p_corr_combined_arr, axis=0), fill=True, label='Model', ax=axes[3])
-axes[3].axvline(np.mean(df_p_correct['p_correct_orig']), color='r', linestyle='-', linewidth=1.5, label='Data')
-
-axes[3].legend(fontsize=fontsize - 1, handlelength=0.75)
-PPC_ax_setup(axes[3], xlabel='P(Correct)', ylabel='Posterior Density', fontsize=fontsize)
+plot_ppc_allPlots(df_switch, df_p_correct, p_corr_combined_arr, axes, fontsize=fontsize)
 
 # ----------
 # 6. Add labels and save figure

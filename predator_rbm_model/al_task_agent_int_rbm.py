@@ -4,7 +4,7 @@
 
 import numpy as np
 import pandas as pd
-from functions.util_functions import circular_distance
+from rbmpy.utilities import circ_dist
 
 
 def task_agent_int(df, agent, agent_vars, sim=False):
@@ -49,7 +49,6 @@ def task_agent_int(df, agent, agent_vars, sim=False):
     # Initialize variables related to simulations
     sim_b_t = np.full(n_trials, np.nan)  # simulated prediction
     sim_z_t = np.full(n_trials, np.nan)  # simulated initial fire location
-    sim_y_t = np.full(n_trials, np.nan)  # simulated shift of the fire
     sim_a_t = np.full(n_trials, np.nan)  # simulated update
 
     # -----------------
@@ -72,7 +71,7 @@ def task_agent_int(df, agent, agent_vars, sim=False):
             agent.h = 0.1
 
         # compute actual participant update on each trial
-        actual_update[t] = np.deg2rad(circular_distance(df['torchAngle'][t + 1], df['torchAngle'][t]))
+        actual_update[t] = circ_dist(np.deg2rad(df['torchAngle'][t + 1]), np.deg2rad(df['torchAngle'][t]))
 
         # For first trial of new block
         if df['trialNumber'][t] == 1:
@@ -86,22 +85,12 @@ def task_agent_int(df, agent, agent_vars, sim=False):
                 # Set initial fire location, prediction, and push
                 sim_z_t[t] = agent_vars.mu_0
                 sim_b_t[t] = agent_vars.mu_0
-                sim_y_t[t] = 0.0
 
         # For all other trials
         else:
             if sim:
                 # For simulations, we take the actual fire location
                 sim_z_t[t] = df['torchAngle'][t]
-
-                # We compute Shift as: (y_t := z_t - b_{t-1})
-                sim_y_t[t] = sim_z_t[t] - sim_b_t[t]
-
-                # # # Adjust for circular task. This is necessary because the model makes different trial-by-trial
-                # # # predictions than participants, where we corrected for this already during preprocessing
-
-                if not np.isnan(sim_y_t[t]):
-                    sim_y_t[t] = sim_y_t[t] % 360
 
         # Record relative uncertainty of current trial
         tau[t] = agent.tau_t
@@ -112,11 +101,11 @@ def task_agent_int(df, agent, agent_vars, sim=False):
             # Sequential belief update
             if sim:
                 # We calculate prediction error between actual predator location and model belief
-                delta[t] = np.deg2rad(circular_distance(df['PredatorAngle'][t], np.rad2deg(sim_b_t[t])))
+                delta[t] = circ_dist(np.deg2rad(df['PredatorAngle'][t]), sim_b_t[t])
                 agent.learn(delta[t], sim_b_t[t], 0, df['PredatorMean'][t], 0)
             else:
                 # We take the actual participant prediction error on that trial
-                agent.learn(delta[t], df['torchAngle'][t], 0, df['PredatorMean'][t], 0)
+                agent.learn(delta[t], np.deg2rad(df['torchAngle'][t]), 0, np.deg2rad(df['PredatorMean'][t]), 0)
 
             # Record updated belief
             mu[t] = agent.mu_t
@@ -148,7 +137,6 @@ def task_agent_int(df, agent, agent_vars, sim=False):
         # Save simulation-related variables
         df_data['sim_b_t'] = sim_b_t
         df_data['sim_a_t'] = sim_a_t
-        df_data['sim_y_t'] = sim_y_t
         df_data['sim_z_t'] = sim_z_t
         df_data['sigma'] = df['PredatorStd']
         df_data['PredatorAngle'] = df['PredatorAngle']

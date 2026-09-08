@@ -11,14 +11,10 @@ import scipy.stats as stats
 from functions.util_functions import cm2inch, medianprops, label_subplots, qns_factor_preprocessing
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, create_subplots
 from functions.prl_descriptive_functions import calculate_score_performance_switch_rates, separate_low_high_groups
-from functions.prl_plotting_functions import plot_descriptive_boxplots
+from functions.prl_plotting_functions import plot_descriptive_boxplots, set_subplot_title
 
 
 # Function to create subplot titles
-def set_subplot_title(ax, r_stable, p_stable, r_volatile, p_volatile, fontsize):
-    title_params = f"$r_{{stable}}={r_stable}, p_{{stable}}={p_stable}$\n$r_{{volatile}}={r_volatile}, p_{{volatile}}={p_volatile}$"
-    ax.set_title(title_params, fontsize=fontsize)
-
 
 # -----------------
 # 1. Load Data

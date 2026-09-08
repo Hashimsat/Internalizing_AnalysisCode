@@ -8,7 +8,7 @@ import scipy.stats as stats
 from functions.util_functions import circular_distance, BoundLR
 
 
-def calculate_lr_stats(LR_quantiles, quantile_ranges, n_group):
+def calculate_lr_stats(LR_quantiles: np.ndarray, quantile_ranges: np.ndarray, n_group: int):
     """
         Calculate the mean, standard deviation (std), standard error of the mean (sem),
         and confidence interval (CI) for the LR quartiles.
@@ -52,7 +52,27 @@ def calculate_lr_stats(LR_quantiles, quantile_ranges, n_group):
 
 
 def plot_errorbars(x, y, yerr, ax, color, label):
-    # plot errorbars for low and high anx groups
+    """
+        Plot data with error bars.
+        Parameters
+        ----------
+        x : numpy.ndarray
+            X-axis values.
+        y : numpy.ndarray
+            Y-axis values of the data points.
+        yerr : numpy.ndarray
+            Error values associated with each y-value.
+        ax : matplotlib.axes.Axes
+            Matplotlib axes on which to plot the error bars.
+        color : str or tuple
+            Color used for the markers and error-bar data points.
+        label : str
+            Label for the plotted data, used in the legend.
+
+        Returns
+        -------
+        None
+    """
     ax.errorbar(x, y, yerr=yerr, capsize=1, c=color, marker='o',
                 elinewidth=1, barsabove=False, ecolor='k', alpha=0.7,
                 markersize=4,
