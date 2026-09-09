@@ -206,7 +206,10 @@ ax_14.yaxis.set_tick_params(labelsize=fontsize)
 r_IC, P_IC, t_IC = plot_x_vs_y_robust(df_endquiz, x='IC02', y='anxiety_rating', title=False, ax=ax_15, tstat=True,
                                       xlabel='STICSA-T', ylabel='Anxiety Rating', fontsize=fontsize, color_index=-2,
                                       line_color_index=-1)
-title = "$\it{r}$ = " + str(r_IC) + ", $\it{p}$ < 0.001 "
+# ensure correct p_vals are shown
+text_ic = "< 0.001" if P_IC < 0.001 else f"= {P_IC:.3f}"
+
+title = "$\it{r}$ = " + str(r_IC) + ", $\it{p}$ " + text_ic
 ax_15.set_title(title, fontsize=fontsize)
 
 # Correlation with G-score (internalizing)
@@ -214,7 +217,9 @@ r_g, P_g, t_g = plot_x_vs_y_robust(df_endquiz, x='g', y='anxiety_rating', title=
                                    xlabel='General Factor', ylabel='Anxiety Rating', fontsize=fontsize, color_index=-2,
                                    line_color_index=-1)
 
-title = "$\it{r}$ = " + str(r_g) + ", $\it{p}$ < 0.001 "
+text_g = "< 0.001" if P_g < 0.001 else f"= {P_g:.3f}"
+
+title = "$\it{r}$ = " + str(r_g) + ", $\it{p}$ " + text_g
 ax_16.set_title(title, fontsize=fontsize)
 ax_16.xaxis.set_major_locator(ticker.MaxNLocator(nbins=3))
 
