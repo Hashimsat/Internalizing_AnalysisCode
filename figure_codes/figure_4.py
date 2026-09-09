@@ -21,8 +21,7 @@ import seaborn as sns
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing
-from functions.predator_descriptive_functions import (EstimationError_overall, PerseverationRate_overall,
-                                                      zscore_columns, SingleTrialLR_overall, RT_InitConf_overall,
+from functions.predator_descriptive_functions import (Estimation_Error, PerseverationRate_overall, zscore_columns, Single_Trial_LR, RT_InitConf_overall,
                                                       combine_descriptive_with_factor_scores)
 from functions.LR_bins_internalizing import learning_rate_descriptive_internalizing
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_descriptive_boxplots
@@ -77,11 +76,11 @@ Subjects = pd.unique(df_predator_merge['subjectID'])
 # ---------------------------------
 
 # Compute mean estimation errors for each subject across blocks
-df_EE = EstimationError_overall(df_predator_merge, Subjects)
+df_EE = Estimation_Error(df_predator_merge, Subjects)
 df_EE_merged, df_EE_merged_LowHighAnx = combine_descriptive_with_factor_scores(df_EE, df_merged, lowhighanx=True)
 
 # Compute median LR for each subject
-df_LR = SingleTrialLR_overall(df_predator_merge, Subjects)
+df_LR = Single_Trial_LR(df_predator_merge, Subjects)
 df_LR_merged, df_LR_merged_LowHighAnx = combine_descriptive_with_factor_scores(df_LR, df_merged, lowhighanx=True)
 
 # Compute perseveration percentage

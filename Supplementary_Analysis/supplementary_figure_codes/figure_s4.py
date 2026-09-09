@@ -8,7 +8,7 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 from scipy.stats import ttest_rel
 from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing
-from functions.predator_descriptive_functions import EstimationError_overall, EstimationError
+from functions.predator_descriptive_functions import Estimation_Error
 from functions.plotting_functions import plot_EE_across_blocks
 
 
@@ -74,10 +74,10 @@ subjects_diffVol = df_diffVol['subjectID'].unique()
 # -----------------
 # 3. Calculate Estimation Errors
 # -----------------
-EE_diffVol_reversal_pure = EstimationError(df_diffVol_reversal_pure, subjects_diffVol_reversal_pure)
-EE_diffVol_reversal_mag = EstimationError(df_diffVol_reversal_mag, subjects_diffVol_reversal_mag)
-EE_diffVol_reversal_lossreward = EstimationError(df_diffVol_reversal_lossreward, subjects_diffVol_reversal_lossreward)
-EE_diffVol = EstimationError(df_diffVol, subjects_diffVol)
+EE_diffVol_reversal_pure = Estimation_Error(df_diffVol_reversal_pure, subjects_diffVol_reversal_pure, block_name='BlockVersion')
+EE_diffVol_reversal_mag = Estimation_Error(df_diffVol_reversal_mag, subjects_diffVol_reversal_mag, block_name='BlockVersion')
+EE_diffVol_reversal_lossreward = Estimation_Error(df_diffVol_reversal_lossreward, subjects_diffVol_reversal_lossreward, block_name='BlockVersion')
+EE_diffVol = Estimation_Error(df_diffVol, subjects_diffVol, block_name='BlockVersion')
 
 # -----------------
 # 4. Plot Estimation Errors
@@ -130,23 +130,23 @@ Subjects_allcombined = np.concatenate((subjects_excluded, subjects_diffVol))
 
 # extract EE for low noise and high noise conditions
 df_low_noise = df_predator[df_predator['BlockVersion'].isin([0, 2])]
-EE_low_noise = EstimationError_overall(df_low_noise, Subjects_allcombined)
+EE_low_noise = Estimation_Error(df_low_noise, Subjects_allcombined)
 median_low_noise = round(np.median(EE_low_noise['EE']), 2)
 IQR_low_noise = np.percentile(EE_low_noise['EE'], [25, 75])
 
 df_high_noise = df_predator[df_predator['BlockVersion'].isin([1, 3])]
-EE_high_noise = EstimationError_overall(df_high_noise, Subjects_allcombined)
+EE_high_noise = Estimation_Error(df_high_noise, Subjects_allcombined)
 median_high_noise = round(np.median(EE_high_noise['EE']), 2)
 IQR_high_noise = np.percentile(EE_high_noise['EE'], [25, 75])
 
 # extract EE for low HR and high HR conditions
 df_low_HR = df_predator[df_predator['BlockVersion'].isin([0, 1])]
-EE_low_HR = EstimationError_overall(df_low_HR, Subjects_allcombined)
+EE_low_HR = Estimation_Error(df_low_HR, Subjects_allcombined)
 median_low_HR = round(np.median(EE_low_HR['EE']), 2)
 IQR_low_HR = np.percentile(EE_low_HR['EE'], [25, 75])
 
 df_high_HR = df_predator[df_predator['BlockVersion'].isin([2, 3])]
-EE_high_HR = EstimationError_overall(df_high_HR, Subjects_allcombined)
+EE_high_HR = Estimation_Error(df_high_HR, Subjects_allcombined)
 median_high_HR = round(np.median(EE_high_HR['EE']), 2)
 IQR_high_HR = np.percentile(EE_high_HR['EE'], [25, 75])
 

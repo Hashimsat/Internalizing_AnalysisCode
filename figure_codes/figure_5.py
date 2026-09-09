@@ -13,7 +13,8 @@ import seaborn as sns
 from scipy import stats
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from functions.util_functions import cm2inch, label_subplots, medianprops, qns_factor_preprocessing, compute_median_iqr
+from functions.util_functions import (cm2inch, label_subplots, medianprops, qns_factor_preprocessing,
+                                      compute_median_iqr, remove_nans_from_array)
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_boxplots
 
 # -----------------
@@ -52,7 +53,7 @@ ml_data['F2_z'] = zscore(ml_data['F2.'])
 ml_data['Age_z'] = zscore(ml_data['Age'])
 
 # Split data into high and low general factor
-g_threshold = np.nanmean(ml_data['g_z'])
+g_threshold = np.mean(remove_nans_from_array(ml_data['g_z']))
 ml_data['G_Category'] = pd.np.where(ml_data['g_z'] > g_threshold, 'High',
                                     pd.np.where(ml_data['g_z'] < g_threshold, 'Low', 'Normal'))
 

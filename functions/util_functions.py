@@ -550,8 +550,8 @@ def welch_t_dof(group1, group2):
 def compute_median_iqr(arr):
     """This function computes median and IQR of given array"""
 
-    median = round(np.nanmedian(arr), 2)
-    iqr = np.round((np.nanpercentile(arr, [25, 75])), 2)
+    median = round(np.median(remove_nans_from_array(arr)), 2)
+    iqr = np.round((np.percentile(remove_nans_from_array(arr), [25, 75])), 2)
 
     return median, iqr
 
@@ -587,3 +587,12 @@ def compute_test_statistic(df, group_col, value_col, group1, group2, test='ttest
 def calculate_spearman_corr(arr1, arr2):
     r, p = stats.spearmanr(arr1, arr2)
     return np.round(r, 2)
+
+
+def remove_nans_from_array(arr):
+    """Remove NaN values from a numpy array.
+    Raise a warning if more than 10% of the values are NaN."""
+    if np.isnan(arr).sum() > 0.1 * len(arr):
+        print("Warning: More than 10% of the values are NaN.")
+
+    return arr[~np.isnan(arr)]

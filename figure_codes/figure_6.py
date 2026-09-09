@@ -16,9 +16,9 @@ from lab_scr_analysis.scr_data_analysis_updated import analyse_scr_data
 from lab_scr_analysis.dataframe_functions import create_average_epochs_dataframe
 import scipy.stats as stats
 
-from functions.predator_descriptive_functions import EstimationError, SingleTrialLR
+from functions.predator_descriptive_functions import Estimation_Error, Single_Trial_LR
 from functions.plotting_functions import boxplots_lab, plot_x_vs_y_FactorScores_robust
-from functions.util_functions import qns_factor_preprocessing, cm2inch, label_subplots
+from functions.util_functions import qns_factor_preprocessing, cm2inch, label_subplots, remove_nans_from_array
 
 # -----------------
 # 1. Load data
@@ -63,10 +63,10 @@ df_predator_merged['ShockBlock'] = df_predator_merged['ShockBlock'].fillna(metho
 
 # calculate EE and LR
 Subjects = pd.unique(df_predator_merged['subjectID'])
-df_EE = EstimationError(df_predator_merged, Subjects, BlockName='ShockBlock')
+df_EE = Estimation_Error(df_predator_merged, Subjects, block_name='ShockBlock')
 df_EE = df_EE.merge(df_qnstotal_subset, on='subjectID')
 
-df_LR = SingleTrialLR(df_predator_merged, Subjects, BlockName='ShockBlock', HitMissSeparation=False)
+df_LR = Single_Trial_LR(df_predator_merged, Subjects, block_name='ShockBlock', hit_miss_separation=False)
 df_LR = df_LR.merge(df_qnstotal_subset, on='subjectID')
 
 # -------------
@@ -279,15 +279,15 @@ plt.show()
 # 6. Save Data
 # -----------------
 
-# Extract stats for fixede and adaptive LR
-median_FixedLR_screams = np.nanmedian(model_data_screams['beta_1'])
-median_FixedLR_shocks = np.nanmedian(model_data_shocks['beta_1'])
+# Extract stats for fixed and adaptive LR
+median_FixedLR_screams = np.median(remove_nans_from_array(model_data_screams['beta_1']))
+median_FixedLR_shocks = np.median(remove_nans_from_array(model_data_shocks['beta_1']))
 t_FixedLR, p_FixedLR = stats.ttest_rel(model_data_screams['beta_1'], model_data_shocks['beta_1'])
 n_FixedLR_shock = len(model_data_shocks['beta_1'])
 n_FixedLR_scream = len(model_data_screams['beta_1'])
 
-median_AdaptiveLR_screams = np.nanmedian(model_data_screams['beta_4'])
-median_AdaptiveLR_shocks = np.nanmedian(model_data_shocks['beta_4'])
+median_AdaptiveLR_screams = np.median(remove_nans_from_array(model_data_screams['beta_4']))
+median_AdaptiveLR_shocks = np.median(remove_nans_from_array(model_data_shocks['beta_4']))
 t_AdaptiveLR, p_AdaptiveLR = stats.ttest_rel(model_data_screams['beta_4'], model_data_shocks['beta_4'])
 n_AdaptiveLR_shock = len(model_data_shocks['beta_4'])
 n_AdaptiveLR_scream = len(model_data_screams['beta_4'])

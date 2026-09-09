@@ -10,7 +10,7 @@ import seaborn as sns
 import statsmodels.api as sm
 from functions.util_functions import cm2inch, qns_factor_preprocessing, label_axes
 from scipy import stats
-from functions.predator_descriptive_functions import EstimationError, SingleTrialLR
+from functions.predator_descriptive_functions import Estimation_Error, Single_Trial_LR
 from functions.plotting_functions import plot_descriptive_boxplots, plot_x_vs_y_FactorScores_robust
 
 
@@ -81,11 +81,11 @@ Subjects_predator = pd.unique(df_predator_merge['subjectID'])
 # -----------------
 # 3. Calculate Estimation Error (EE) and Learning Rate (LR)
 # -----------------
-df_EE = EstimationError(df_predator_merge, Subjects_predator)
+df_EE = Estimation_Error(df_predator_merge, Subjects_predator, block_name='BlockVersion')
 df_EE_merged = df_EE.merge(df_merged, on='subjectID')
 df_EE_merged_LowHighAnx = df_EE_merged[df_EE_merged['G_Category'].isin(['High', 'Low'])]
 
-df_LR = SingleTrialLR(df_predator_merge, Subjects_predator, BlockName='BlockVersion')
+df_LR = Single_Trial_LR(df_predator_merge, Subjects_predator, block_name='BlockVersion')
 df_LR_merged = df_LR.merge(df_merged, on='subjectID')
 df_LR_merged_LowHighAnx = df_LR_merged[df_LR_merged['G_Category'].isin(['High', 'Low'])]
 
