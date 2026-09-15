@@ -5,25 +5,31 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import os
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_axes, plot_opened_image_with_text
+from allinpy import cm2inch, label_subplots, latex_plt
 
+# todo: Rasmus will update latex_plt so that other font sizes are possible
+# then use it here..
+# Update matplotlib to use Latex and to change some defaults
+matplotlib = latex_plt(matplotlib)
 
-# -----------------
+# ------------------------
 # 1. Load data and figures
-# -----------------
+# ------------------------
 
 # Load normative learning simulation
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 df_norm = pd.read_csv(os.path.join(base_dir, "data/predator_task/simulated_normative_learning_fig1.csv"))
+# generated in simulation_normative_learning.py
 figure_folder = base_dir + '/figures/'
 
 # Load path to animated figures
-
 path = [os.path.join(base_dir, p) for p in [
     'figures/generated_anims/Illustration_Left_noText.png',
     'figures/generated_anims/Illustration_Right_noText.png'
@@ -48,9 +54,9 @@ gs_0 = gridspec.GridSpec(2, 6, wspace=0.5, hspace=0.3, top=0.73, bottom=0.1, lef
 colors = ["#92e0a9", "#69b0c1", "#6d6192", "#352d4d"]
 sns.set_palette(sns.color_palette(colors))
 
-# -----------------
-# 3. Plot exmaple illustrations
-# -----------------
+# -----------------------------
+# 3. Plot example illustrations
+# -----------------------------
 
 gs_00 = gridspec.GridSpecFromSubplotSpec(1, 6, subplot_spec=gs_0[0, 0:6], wspace=0.5)
 ax_0 = plt.Subplot(f, gs_00[0, 0:3])
@@ -71,29 +77,27 @@ plot_opened_image_with_text(path[0], ax_0, 0.42, 0.985, zoom=0.115, text=text1, 
 plot_opened_image_with_text(path[1], ax_1, 0.52, 0.938, zoom=0.115, text=text2, text_x=0.81, text_y=1.42,
                             text_kwargs=text_kwargs)
 
-# -----------------
+# ---------------------------------
 # 4. Plot learning-rate simulations
-# -----------------
+# ---------------------------------
 
-# Plot H1: Normative Learning vs Over-learning
-
+# Plot H1: Normative learning vs. overlearning
+# --------------------------------------------
 ax_20 = plt.subplot(gs_0[1, 0:2])
 plt.axhline(y=0.9, linestyle='-', c="#de77ae", linewidth=2)
 ax_20.plot(df_norm['Prediction Error'], df_norm['Learning Rate'], color="#249886", linewidth=2)
-
 ax_20.set_ylim([-0.02, 1.1])
 ax_20.set_yticks(np.arange(0, 1.3, 0.5))
 ax_20.set_ylabel('Learning Rate', fontsize=fontsize)
 ax_20.set_xlabel('Prediction Error', fontsize=fontsize)
 title = 'H1: High Learning Rate'
-ax_20.set_title(title, fontsize=fontsize - 1, pad=7)
+ax_20.set_title(title, fontsize=fontsize, pad=7)
 ax_20.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
-
 plt.yticks(fontsize=fontsize)
 plt.xticks(fontsize=fontsize)
 
 # Plot H2: Normative Learning vs impaired adaptive learning
-
+# ---------------------------------------------------------
 ax_21 = plt.subplot(gs_0[1, 2:4])
 ax_21.plot(df_norm['Prediction Error'], 0.5 * df_norm['Learning Rate'], color="#de77ae", linewidth=2)
 ax_21.plot(df_norm['Prediction Error'], df_norm['Learning Rate'], color="#249886", linewidth=2)
@@ -102,14 +106,14 @@ ax_21.set_ylim([-0.02, 1.1])
 ax_21.set_yticks(np.arange(0, 1.3, 0.5))
 ax_21.set_xlabel('Prediction Error', fontsize=fontsize)
 title = 'H2: Impaired Adaptation to Change'
-ax_21.set_title(title, fontsize=fontsize - 1, pad=7)
+ax_21.set_title(title, fontsize=fontsize, pad=7)
 
 ax_21.set_yticklabels([])
 ax_21.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
 plt.xticks(fontsize=fontsize)
 
 # Plot H3: No difference in learning
-
+# ----------------------------------
 ax_22 = plt.subplot(gs_0[1, 4:6])
 ax_22.plot(df_norm['Prediction Error'], 0.98 * df_norm['Learning Rate'], color="#de77ae", linewidth=2, alpha=0.8)
 ax_22.plot(df_norm['Prediction Error'], df_norm['Learning Rate'], color="#249886", linewidth=2, alpha=0.8)
@@ -118,29 +122,23 @@ ax_22.set_ylim([-0.02, 1.1])
 ax_22.set_yticks(np.arange(0, 1.3, 0.5))
 ax_22.set_xlabel('Prediction Error', fontsize=fontsize)
 ax_22.legend(["High Internalizing", "Normative Agent"], bbox_to_anchor=(0.35, 0), loc="lower left", framealpha=0,
-             fontsize=fontsize - 1, handlelength=1)
+             fontsize=fontsize, handlelength=1)
 ax_22.set_yticklabels([])
 plt.xticks(fontsize=fontsize)
-title = 'H3: No Change in Learning Rate'
-ax_22.set_title(title, fontsize=fontsize - 1, pad=7)
+title = 'H3: No Difference'
+ax_22.set_title(title, fontsize=fontsize, pad=7)
 ax_22.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
 
 # Add labels to axes
+texts = ['a', 'b', 'c', 'd', 'e']
+x_offset = [0.05, 0.05, 0.05, 0.05, 0.05]
+y_offset = [0.16, 0.16, 0.07, 0.07, 0.07]
+label_subplots(f, texts, x_offset=x_offset, y_offset=y_offset)
 
-texts = ['a']
-label_axes(f, [ax_0], texts, x_offset=0.05, y_offset=0.16, fontsize=fontsize)
-
-texts = ['b', ]
-
-label_axes(f, [ax_1], texts, x_offset=0.04, y_offset=0.16, fontsize=fontsize)
-
-texts = ['c', 'd', 'e']
-
-label_axes(f, [ax_20, ax_21, ax_22], texts, x_offset=0.03, y_offset=0.07, fontsize=fontsize)
-
-# -----------------
+# --------------
 # 5. Save figure
-# -----------------
+# --------------
+
 sns.despine()
 name = 'fig_1_hypothesis' + '.pdf'
 savename = os.path.join(figure_folder, name)
