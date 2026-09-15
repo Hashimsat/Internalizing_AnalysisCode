@@ -7,7 +7,7 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 import scipy
 from scipy import stats
-from functions.util_functions import medianprops, compute_median_iqr, compute_test_statistic, cm2inch
+from functions.util_functions import medianprops, compute_median_iqr, compute_test_statistic, cm2inch, remove_nans_from_array
 from functions.prl_descriptive_functions import calculate_switches_PPC, calculate_p_correct_PPC
 import matplotlib.gridspec as gridspec
 import pymc3 as pm
@@ -451,8 +451,8 @@ def param_by_factor_score(trace, df_data, model,
         y = lrs[idx, j]
         x = np.ones_like(y) * j + 0.1
 
-        mean_arr[j] = np.nanmean(y)
-        std_arr[j] = np.nanstd(y)
+        mean_arr[j] = np.mean(remove_nans_from_array(y))
+        std_arr[j] = np.std(remove_nans_from_array(y))
         if i == pos[-1]:
             plt.scatter(x + scatter_offset, y, c=color, marker="x", s=s,
                         label=extra_legend_scatter1 + 'participants' + extra_legend_scatter2)  # +eq+'0 on '+factor+' factor')
@@ -629,9 +629,9 @@ def plot_param_separated_by_domain(trace, df_data, model,
         y = lrs[idx, i]
         x = np.ones_like(y) * j + 0.1
         yerr_arr[j] = y.std() / np.sqrt(len(y))
-        std_arr[j] = np.nanstd(y)
+        std_arr[j] = np.std(remove_nans_from_array(y))
 
-        mean_arr[j] = np.nanmean(y)
+        mean_arr[j] = np.mean(remove_nans_from_array(y))
         if i == pos[-1]:
             plt.scatter(x + scatter_offset, y, c=color, marker="x", s=s,
                         label=extra_legend_scatter1 + 'participants' + extra_legend_scatter2)  # +eq+'0 on '+factor+' factor')

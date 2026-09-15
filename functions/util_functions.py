@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -540,8 +541,8 @@ def welch_t_dof(group1, group2):
 def compute_median_iqr(arr):
     """This function computes median and IQR of given array"""
 
-    median = round(np.nanmedian(arr), 2)
-    iqr = np.round((np.nanpercentile(arr, [25, 75])), 2)
+    median = round(np.median(remove_nans_from_array(arr)), 2)
+    iqr = np.round((np.percentile(remove_nans_from_array(arr), [25, 75])), 2)
 
     return median, iqr
 
@@ -577,3 +578,33 @@ def compute_test_statistic(df, group_col, value_col, group1, group2, test='ttest
 def calculate_spearman_corr(arr1, arr2):
     r, p = stats.spearmanr(arr1, arr2)
     return np.round(r, 2)
+
+
+def remove_nans_from_array(arr):
+    """Remove NaN values from a numpy array.
+    Raise a warning if more than 10% of the values are NaN."""
+    if np.isnan(arr).sum() > 0.1 * len(arr):
+        print("Warning: More than 10% of the values are NaN.")
+
+    return arr[~np.isnan(arr)]
+
+
+def safe_save_dataframe(df, filepath):
+    """Safely save a DataFrame to a CSV file, and if the file already exists yet is different,
+    throw a warning and add _unexp to the end of new file."""
+
+    path_exist = os.path.exists(filepath)
+
+    # check if file is the same or not
+    if path_exist:
+        existing_df = pd.read_csv(filepath)
+        if df.equals(existing_df): # similarity checked up to 2 decimal places
+            print(f"File {filepath} already exists and is identical. No new file created.")
+            return
+        else:
+            # If not identical, modify the filename to avoid overwriting
+            base, ext = os.path.splitext(filepath)
+            filepath = f"{base}_unexp{ext}"
+            print(f"File {filepath} already exists but is different. Saving new file as {filepath}.")
+
+    df.to_csv(filepath, index=False)

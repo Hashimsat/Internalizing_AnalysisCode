@@ -15,7 +15,7 @@ import pickle
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import cm2inch, label_subplots, label_axes, compute_median_iqr, qns_factor_preprocessing, \
-    compute_test_statistic
+    compute_test_statistic, remove_nans_from_array
 from functions.prl_plotting_functions import plot_param_posterior_distribution_onesubplot, plot_factor_errorbar, \
     param_by_factor_score, extract_distribution_mean_hdpis
 from functions.prl_descriptive_functions import performance_prl, separate_low_high_groups
@@ -271,8 +271,8 @@ def compute_performance_stats(arr):
         - iqr (float): Interquartile range (IQR) of the array.
     """
 
-    mean_val = np.round(np.nanmean(arr), 2)
-    std_val = np.round(np.nanstd(arr), 2)
+    mean_val = np.round(np.mean(remove_nans_from_array(arr)), 2)
+    std_val = np.round(np.std(remove_nans_from_array(arr)), 2)
     median_val, iqr_val = compute_median_iqr(arr)
     return mean_val, std_val, median_val, iqr_val
 

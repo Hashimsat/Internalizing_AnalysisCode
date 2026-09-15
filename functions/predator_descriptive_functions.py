@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 from scipy.stats import zscore
-from functions.util_functions import circular_distance, CircularDistance_Array, BoundLR, safe_div_list
+from functions.util_functions import circular_distance, CircularDistance_Array, BoundLR, safe_div_list, remove_nans_from_array
 
 # todo: can't we use the circ stats toolbox?
 def calculate_estimation_error(df: pd.DataFrame) -> float:
@@ -28,61 +28,41 @@ def calculate_estimation_error(df: pd.DataFrame) -> float:
         df_torchmoved['PredatorMean'].to_numpy(),
         df_torchmoved['torchAngle'].to_numpy()
     )
-    return np.nanmean(np.abs(ee))
 
-def estimation_error_overall(df: pd.DataFrame, subjects: np.ndarray) -> pd.DataFrame:
-    """Calculate mean estimation error for each subject across blocks.
+    # add a warning if number of nans in EE is more than 10% of the total number of trials
+    EE = remove_nans_from_array(EE)
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Predator data.
-    subjects : np.ndarray
-        Subject IDs.
+    return np.mean(np.abs(EE))
 
-    Returns
-    -------
-    pd.DataFrame
-        Computed estimation errors.
-    """
 
-    # Initialize variables
-    subj_list = []
-    ee_overall = np.full(len(subjects), np.nan)  # 4 blocks in total for each task
+def Estimation_Error(df, subjects, block_name=None):
+    """Calculate mean Estimation Error for each subject, optionally split by block."""
 
-    # Cycle over subjects
-    for subjIndex, subj in enumerate(subjects):
+    subjects = list(subjects)
 
-        subj_list.append(subj)
-        df_block = df[df['subjectID'] == subj]
-        ee_overall[subjIndex] = calculate_estimation_error(df_block)
+    if block_name is None:
+        # Overall EE
+        EE = [
+            calculate_estimation_error(df[df['subjectID'] == subj]) for subj in subjects
+        ]
 
-    # Create a dataframe of Estimation Error across all blocks
-    df_ee = create_dataframe(ee_overall, 'EE', subj_list)
-    df_ee = df_ee.dropna()
+        result = create_dataframe(EE, 'EE', subjects)
 
-    return df_ee
+    else:
+        # Block-wise EE
+        blocks = np.sort(pd.unique(df[block_name])).astype(int)
 
-# Todo: can this be merged with estimation_error_overall?
-def EstimationError(df, Subjects, BlockName='BlockVersion'):
-    """Calculate mean Estimation Error (EE) for each subject in each block"""
+        EE = np.full((len(subjects), len(blocks)), np.nan)
 
-    Blocks = np.sort(pd.unique(df[BlockName])).astype(int)
-    EE_overall = np.full([len(Subjects), len(Blocks)], np.nan)  # 4 blocks in total for each task
-    subj_list = []
+        for subj_idx, subj in enumerate(subjects):
+            for block_idx, block in enumerate(blocks):
+                df_block = df[(df['subjectID'] == subj) & (df[block_name] == block)]
 
-    for subjIndex, subj in enumerate(Subjects):
-        subj_list.append(subj)
-        for b in Blocks:
-            df_block = df[(df['subjectID'] == subj) & (df[BlockName] == b)]
-            EE_overall[subjIndex, b] = calculate_estimation_error(df_block)
+                EE[subj_idx, block_idx] = calculate_estimation_error(df_block)
 
-    # Create a dataframe of Estimation Error across all blocks
-    df_EE = create_dataframe(EE_overall, ['EE_B' + str(b) for b in Blocks],subj_list)
-    df_EE = df_EE.dropna()
+        result = create_dataframe(EE, [f'EE_B{block}' for block in blocks], subjects)
 
-    return df_EE
-
+    return result.dropna()
 def create_dataframe(data: np.ndarray, column_name: str, subj_list: list) -> pd.DataFrame:
     """Create a DataFrame for the given data and subject list.
 
@@ -103,6 +83,7 @@ def create_dataframe(data: np.ndarray, column_name: str, subj_list: list) -> pd.
     """
 
     # Create a DataFrame for the given data
+
     df = pd.DataFrame(data=data, columns=[column_name])
     df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
 
@@ -139,85 +120,6 @@ def calculate_learning_rates(Update, PE):
     LR = {key: BoundLR(safe_div_list(Update[key], PE[key])) for key in Update}
     return LR
 
-def SingleTrialLR(df, Subjects, Block=None, BlockName='BlockVersion', HitMissSeparation=False):
-    """Calculate single trial learning rates for each subject for each block separately block."""
-
-    if (Block is None):
-        Block = np.sort(pd.unique(df[BlockName])).astype(int)
-
-    # Initialize arrays and subject list
-    LR_medians = {"Hit": np.full([len(Subjects), len(Block)], np.NaN),
-                      "Miss": np.full([len(Subjects), len(Block)], np.NaN),
-                      "Overall": np.full([len(Subjects), len(Block)], np.NaN)}
-    subj_list = []
-
-    for subjIndex, subj in enumerate(Subjects):
-        df_subj = df.loc[(df['subjectID'] == subj)]
-        subj_list = np.append(subj_list, subj)
-
-        for b, blockV in enumerate(Block):
-            df_subj_b = df_subj[df_subj[BlockName] == blockV]
-
-            # Process updates and prediction errors
-            Update, PE = process_updates_and_pe(df_subj_b)
-
-            # Calculate learning rates
-            LR = calculate_learning_rates(Update, PE)
-
-            # Store medians
-            LR_medians["Hit"][subjIndex, b] = np.nanmedian(LR["Hit"])
-            LR_medians["Miss"][subjIndex, b] = np.nanmedian(LR["Miss"])
-            LR_medians["Overall"][subjIndex, b] = np.nanmedian(LR["Overall"])
-
-    # Create DataFrames
-    df_hitmedian = create_dataframe(LR_medians["Hit"], ['HB' + str(element) for element in Block], subj_list)
-    df_missmedian = create_dataframe(LR_medians["Miss"], ['MB' + str(element) for element in Block], subj_list)
-    df_LR = create_dataframe(LR_medians["Overall"], ['LR_B' + str(element) for element in Block], subj_list)
-
-    if (HitMissSeparation):
-        df_merged = df_hitmedian.merge(df_missmedian, on='subjectID')
-        return df_merged, df_LR
-    else:
-        return df_LR
-
-
-
-def SingleTrialLR_overall(df,Subjects, HitMissSeparation = False):
-    """Calculate overall median single trial learning rate across all blocks for each subject."""
-
-    # Initialize arrays and subject list
-    LR_medians = {"Hit": np.full(len(Subjects), np.NaN),
-                  "Miss": np.full(len(Subjects), np.NaN),
-                  "Overall": np.full(len(Subjects), np.NaN)}
-    subj_list = []
-
-    for subjIndex, subj in enumerate(Subjects):
-        df_subj = df.loc[(df['subjectID'] == subj)]
-        subj_list = np.append(subj_list, subj)
-
-        # Process updates and prediction errors
-        Update, PE = process_updates_and_pe(df_subj)
-
-        # Calculate learning rates
-        LR = calculate_learning_rates(Update, PE)
-
-        # Store medians
-        LR_medians["Hit"][subjIndex] = np.nanmedian(LR["Hit"])
-        LR_medians["Miss"][subjIndex] = np.nanmedian(LR["Miss"])
-        LR_medians["Overall"][subjIndex] = np.nanmedian(LR["Overall"])
-
-    # Create DataFrames
-    df_hitmedian = create_dataframe(LR_medians["Hit"], 'HitLR', subj_list)
-    df_missmedian = create_dataframe(LR_medians["Miss"], 'MissLR', subj_list)
-    df_LR = create_dataframe(LR_medians["Overall"], 'LR', subj_list)
-
-
-    if (HitMissSeparation):
-        df_merged = df_hitmedian.merge(df_missmedian, on='subjectID')
-        return df_merged, df_LR
-    else:
-        return df_LR
-
 
 def PerseverationRate_overall(df, Subjects):
     """Compute perseveration rate for each subject."""
@@ -246,12 +148,149 @@ def PerseverationRate_overall(df, Subjects):
         TotalTrials[subjIndex] = len(df_subj)
 
     # calculate percentage perseveration
-    PercentagePerseveration = (PerseverationRate / (TotalTrials - 1))
+    PercentagePerseveration = (PerseverationRate / (TotalTrials - 1));
 
     df_pers = create_dataframe(PercentagePerseveration, 'Pers', subjList)
 
     return df_pers
 
+
+def Single_Trial_LR(
+    df,
+    subjects,
+    block_name=None,
+    blocks=None,
+    hit_miss_separation=False
+):
+    """Calculate median single-trial learning rates for each subject.
+
+    If block_name is provided, learning rates are calculated separately
+    for each block. Otherwise, they are calculated across all trials.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Data containing subject and trial information.
+    subjects : iterable
+        Subject IDs to include.
+    block_name : str, optional
+        Column containing block identifiers. If None, calculate LR
+        across all blocks.
+    blocks : iterable, optional
+        Specific blocks to include. If None, use all blocks found in df.
+    hit_miss_separation : bool
+        If True, return separate Hit and Miss DataFrames in addition
+        to the overall LR DataFrame.
+
+    Returns
+    -------
+    pd.DataFrame
+        Overall median learning rates.
+    tuple of pd.DataFrame
+        If hit_miss_separation=True, returns Hit/Miss and Overall DataFrames.
+    """
+
+    subjects = list(subjects)
+
+    # Determine whether we are calculating across blocks or within blocks
+    by_block = block_name is not None
+
+    if by_block:
+        if blocks is None:
+            blocks = np.sort(df[block_name].dropna().unique()).astype(int)
+        else:
+            blocks = list(blocks)
+
+        n_blocks = len(blocks)
+
+        lr_medians = {
+            "Hit": np.full((len(subjects), n_blocks), np.nan),
+            "Miss": np.full((len(subjects), n_blocks), np.nan),
+            "Overall": np.full((len(subjects), n_blocks), np.nan),
+        }
+
+    else:
+        lr_medians = {
+            "Hit": np.full(len(subjects), np.nan),
+            "Miss": np.full(len(subjects), np.nan),
+            "Overall": np.full(len(subjects), np.nan),
+        }
+
+    # Calculate learning rates
+    for subj_idx, subj in enumerate(subjects):
+
+        df_subj = df[df["subjectID"] == subj]
+
+        if by_block:
+
+            for block_idx, block in enumerate(blocks):
+
+                df_subj_block = df_subj[
+                    df_subj[block_name] == block
+                ]
+
+                update, pe = process_updates_and_pe(df_subj_block)
+                lr = calculate_learning_rates(update, pe)
+
+                for lr_type in lr_medians:
+                    values = remove_nans_from_array(lr[lr_type])
+                    lr_medians[lr_type][subj_idx, block_idx] = np.median(values)
+
+        else:
+
+            update, pe = process_updates_and_pe(df_subj)
+            lr = calculate_learning_rates(update, pe)
+
+            for lr_type in lr_medians:
+                values = remove_nans_from_array(lr[lr_type])
+                lr_medians[lr_type][subj_idx] = np.median(values)
+
+    # Create DataFrames
+    if by_block:
+
+        df_hit = create_dataframe(
+            lr_medians["Hit"],
+            [f"HB{block}" for block in blocks],
+            subjects
+        )
+
+        df_miss = create_dataframe(
+            lr_medians["Miss"],
+            [f"MB{block}" for block in blocks],
+            subjects
+        )
+
+        df_overall = create_dataframe(
+            lr_medians["Overall"],
+            [f"LR_B{block}" for block in blocks],
+            subjects
+        )
+
+    else:
+
+        df_hit = create_dataframe(
+            lr_medians["Hit"],
+            "HitLR",
+            subjects
+        )
+
+        df_miss = create_dataframe(
+            lr_medians["Miss"],
+            "MissLR",
+            subjects
+        )
+
+        df_overall = create_dataframe(
+            lr_medians["Overall"],
+            "LR",
+            subjects
+        )
+
+    if hit_miss_separation:
+        df_hit_miss = df_hit.merge(df_miss, on="subjectID")
+        return df_hit_miss, df_overall
+
+    return df_overall
 
 def RT_InitConf_overall(df: pd.DataFrame, Subjects: np.ndarray) -> tuple:
     """Calculate median reaction time for initiation and confirmation for each subject.
@@ -288,8 +327,9 @@ def RT_InitConf_overall(df: pd.DataFrame, Subjects: np.ndarray) -> tuple:
 
         df_subj = df.loc[(df['subjectID'] == subj) ]
 
-        RT_init[subjIndex] = np.nanmedian(df_subj['RTInitiation'])
-        RT_conf[subjIndex] = np.nanmedian(df_subj['RTConfirmation'])
+        # Remove nans and claculate median
+        RT_init[subjIndex] = np.median(remove_nans_from_array(df_subj['RTInitiation'].to_numpy()))
+        RT_conf[subjIndex] = np.median(remove_nans_from_array(df_subj['RTConfirmation'].to_numpy()))
 
     # Create DataFrames
     df_init = create_dataframe(RT_init, 'RT', subjList)

@@ -6,9 +6,9 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
-from functions.util_functions import cm2inch, label_subplots, medianprops, qns_factor_preprocessing
+from functions.util_functions import cm2inch, label_subplots, medianprops, qns_factor_preprocessing, remove_nans_from_array
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, FDR_correction_regression, create_subplots
-from functions.predator_descriptive_functions import EstimationError_overall, SingleTrialLR_overall, zscore_columns
+from functions.predator_descriptive_functions import Estimation_Error, Single_Trial_LR, zscore_columns
 
 # -----------------
 # 1. Load Data
@@ -38,10 +38,10 @@ ml_data = ml_data.merge(df_merged, on='subjectID')
 # 3. Calculate Descriptive Measures (EE & LR)
 # -----------------
 Subjects = pd.unique(df_LI['subjectID'])
-df_EE = EstimationError_overall(df_LI, Subjects)
+df_EE = Estimation_Error(df_LI, Subjects)
 df_EE = df_EE.merge(df_merged, on='subjectID')
 
-df_LR = SingleTrialLR_overall(df_LI, Subjects, HitMissSeparation=False)
+df_LR = Single_Trial_LR(df_LI, Subjects, hit_miss_separation=False)
 df_LR = df_LR.merge(df_merged, on='subjectID')
 
 # -----------------
@@ -127,9 +127,10 @@ stats_LI = {'Statistic': ['mean_EE', 'std_EE', 'mean_LR', 'std_LR',
                           'p_EE', 'p_LR', 'p_b1', 'p_b4',
                           't_EE', 't_LR', 't_b1', 't_b4',
                           'n_total'],
-            'Values': [np.nanmean(df_EE['EE']), np.nanstd(df_EE['EE']), np.nanmean(df_LR['LR']), np.nanstd(df_LR['LR']),
-                       np.nanmedian(df_EE['EE']), EE_IQR[0], EE_IQR[1],
-                       np.nanmedian(df_LR['LR']), LR_IQR[0], LR_IQR[1],
+            'Values': [np.mean(remove_nans_from_array(df_EE['EE'])), np.std(remove_nans_from_array(df_EE['EE'])),
+                       np.mean(remove_nans_from_array(df_LR['LR'])), np.std(remove_nans_from_array(df_LR['LR'])),
+                       np.median(remove_nans_from_array(df_EE['EE'])), EE_IQR[0], EE_IQR[1],
+                       np.median(remove_nans_from_array(df_LR['LR'])), LR_IQR[0], LR_IQR[1],
                        r_EE, r_LR, r, r_ad,
                        p_EE, p_LR, p_b1, p_b4,
                        t_EE, t_LR, t_FLR, t_ad_LR,
