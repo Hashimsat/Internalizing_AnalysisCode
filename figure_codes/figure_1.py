@@ -11,13 +11,13 @@ import matplotlib.gridspec as gridspec
 import matplotlib.ticker as ticker
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from functions.util_functions import cm2inch, label_axes, plot_opened_image_with_text
-from allinpy import cm2inch, label_subplots, latex_plt
+from functions.util_functions import plot_opened_image_with_text, latex_plt
+from allinpy import cm2inch, label_subplots #, latex_plt
 
-# todo: Rasmus will update latex_plt so that other font sizes are possible
+# todo: Rasmus will update latex_plt in alliny so that other font sizes are possible
 # then use it here..
 # Update matplotlib to use Latex and to change some defaults
-matplotlib = latex_plt(matplotlib)
+matplotlib = latex_plt(matplotlib, fontsize=7)
 
 # ------------------------
 # 1. Load data and figures
@@ -42,7 +42,6 @@ path = [os.path.join(base_dir, p) for p in [
 # Size of figure
 fig_width = 14
 fig_height = 11
-fontsize = 7
 
 # Create figure
 f = plt.figure(figsize=cm2inch(fig_width, fig_height))
@@ -66,7 +65,7 @@ f.add_subplot(ax_1)
 
 text1 = 'Bears\n expected,\n stay cautious'
 text2 = 'Unexpected\n bear, get more\n cautious here'
-text_kwargs = {'fontsize': fontsize - 1, 'color': 'white',
+text_kwargs = {'fontsize': 6, 'color': 'white',
                'horizontalalignment': 'center',
                'verticalalignment': 'center'
                }
@@ -88,13 +87,11 @@ plt.axhline(y=0.9, linestyle='-', c="#de77ae", linewidth=2)
 ax_20.plot(df_norm['Prediction Error'], df_norm['Learning Rate'], color="#249886", linewidth=2)
 ax_20.set_ylim([-0.02, 1.1])
 ax_20.set_yticks(np.arange(0, 1.3, 0.5))
-ax_20.set_ylabel('Learning Rate', fontsize=fontsize)
-ax_20.set_xlabel('Prediction Error', fontsize=fontsize)
+ax_20.set_ylabel('Learning Rate')
+ax_20.set_xlabel('Prediction Error')
 title = 'H1: High Learning Rate'
-ax_20.set_title(title, fontsize=fontsize, pad=7)
+ax_20.set_title(title, pad=7)
 ax_20.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
-plt.yticks(fontsize=fontsize)
-plt.xticks(fontsize=fontsize)
 
 # Plot H2: Normative Learning vs impaired adaptive learning
 # ---------------------------------------------------------
@@ -104,13 +101,12 @@ ax_21.plot(df_norm['Prediction Error'], df_norm['Learning Rate'], color="#249886
 
 ax_21.set_ylim([-0.02, 1.1])
 ax_21.set_yticks(np.arange(0, 1.3, 0.5))
-ax_21.set_xlabel('Prediction Error', fontsize=fontsize)
+ax_21.set_xlabel('Prediction Error')
 title = 'H2: Impaired Adaptation to Change'
-ax_21.set_title(title, fontsize=fontsize, pad=7)
+ax_21.set_title(title, pad=7)
 
 ax_21.set_yticklabels([])
 ax_21.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
-plt.xticks(fontsize=fontsize)
 
 # Plot H3: No difference in learning
 # ----------------------------------
@@ -120,13 +116,12 @@ ax_22.plot(df_norm['Prediction Error'], df_norm['Learning Rate'], color="#249886
 
 ax_22.set_ylim([-0.02, 1.1])
 ax_22.set_yticks(np.arange(0, 1.3, 0.5))
-ax_22.set_xlabel('Prediction Error', fontsize=fontsize)
+ax_22.set_xlabel('Prediction Error')
 ax_22.legend(["High Internalizing", "Normative Agent"], bbox_to_anchor=(0.35, 0), loc="lower left", framealpha=0,
-             fontsize=fontsize, handlelength=1)
+            handlelength=1)
 ax_22.set_yticklabels([])
-plt.xticks(fontsize=fontsize)
 title = 'H3: No Difference'
-ax_22.set_title(title, fontsize=fontsize, pad=7)
+ax_22.set_title(title, pad=7)
 ax_22.xaxis.set_major_locator(ticker.MaxNLocator(nbins=4))
 
 # Add labels to axes

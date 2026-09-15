@@ -121,8 +121,8 @@ def cm2inch(*tupl):
     else:
         return tuple(i / inch for i in tupl)
 
-
-def latex_plt(matplotlib):
+# Todo: ultimately replace with allinpy version
+def latex_plt(matplotlib, fontsize=6):
     """ This function updates the matplotlib library to use Latex and changes some default plot parameters
 
     :param matplotlib: matplotlib instance
@@ -130,24 +130,14 @@ def latex_plt(matplotlib):
     """
 
     pgf_with_latex = {
-        # "pgf.texsystem": "pdflatex",
-        # "text.usetex": True,
-        "font.family": "serif",
-        "font.sans-serif": [],
-        "axes.labelsize": 6,
-        "font.size": 6,
-        "legend.fontsize": 6,
-        "axes.titlesize": 6,
-        "xtick.labelsize": 6,
-        "ytick.labelsize": 6,
-        "figure.titlesize": 6,
+        "axes.labelsize": fontsize,
+        "font.size": fontsize,
+        "legend.fontsize": fontsize,
+        "axes.titlesize": fontsize,
+        "xtick.labelsize": fontsize,
+        "ytick.labelsize": fontsize,
+        "figure.titlesize": fontsize,
         "pgf.rcfonts": False,
-        # "text.latex.unicode": True,
-        "pgf.preamble": [
-            r"\usepackage[utf8x]{inputenc}",
-            r"\usepackage[T1]{fontenc}",
-            r"\usepackage{cmbright}",
-        ]
     }
     matplotlib.rcParams.update(pgf_with_latex)
 

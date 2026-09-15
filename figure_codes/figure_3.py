@@ -28,8 +28,12 @@ import seaborn as sns
 from scipy.stats import zscore
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from functions.util_functions import CircularDistance_Array, cm2inch, label_axes, add_text, compute_median_iqr
+from functions.util_functions import CircularDistance_Array, cm2inch, label_axes, add_text, compute_median_iqr, latex_plt
 from functions.plotting_functions import plot_x_vs_y_robust
+
+# Todo: use allinpy version after update
+fontsize = 7
+matplotlib = latex_plt(matplotlib, fontsize=fontsize)
 
 # Turn on interactive mode
 plt.ion()
@@ -92,7 +96,7 @@ f.add_subplot(ax_0)
 
 # Figure text and font size
 text = ['Prediction', 'Outcome\n(1.4s)', 'Prediction\nError', 'Update (max. 5s)']
-fontsize = 7
+#fontsize = 7
 
 # Initialize image coordinates
 cell_x0 = 0.0
@@ -114,11 +118,11 @@ ab = AnnotationBbox(imagebox, (image_x, image_y), xybox=None,
 ax_0.add_artist(ab)
 
 # Add the texts ontop
-text_kwargs = {'fontsize': fontsize - 1, 'color': 'black',
+text_kwargs = {'fontsize': 6, 'color': 'black',
                'horizontalalignment': 'center',
                'verticalalignment': 'center'}
 
-text_kwarg2 = {'fontsize': fontsize - 1, 'color': 'black',
+text_kwarg2 = {'fontsize': 6, 'color': 'black',
                'horizontalalignment': 'left',
                'verticalalignment': 'center'}
 
@@ -147,14 +151,11 @@ f.add_subplot(ax_10)
 ax_10.plot(x, df_model['pred_mean'][plot_range[0]:plot_range[1]], '--',
            x, df_model['pred_loc'][plot_range[0]:plot_range[1]], '.', color="#090030")
 ax_10.plot(x, df_model['sim_b_t'][plot_range[0]:plot_range[1]], linewidth=2, color="#de77ae", alpha=0.8)
-ax_10.set_ylabel('Position', fontsize=fontsize)
+ax_10.set_ylabel('Position')
 ax_10.legend(["Predator Mean", "Outcome", "Model"], loc='upper left', bbox_to_anchor=(0.75, 1.40),
-             framealpha=0.8, fontsize=fontsize - 1, handlelength=1)
+             framealpha=0.8, fontsize=6, handlelength=1)
 ax_10.set_ylim(0, 350)
 ax_10.set_xticklabels([''])
-
-ax_10.xaxis.set_tick_params(labelsize=fontsize)
-ax_10.yaxis.set_tick_params(labelsize=fontsize)
 
 # Estimation Errors
 ax_11 = plt.Subplot(f, gs_01[2, 0])
@@ -164,10 +165,7 @@ est_error = CircularDistance_Array(df_model['pred_mean'].astype('float'), df_mod
 
 ax_11.plot(x, df_model['delta_t'][plot_range[0]:plot_range[1]], linewidth=2, color="#090030", alpha=1)
 ax_11.set_xticklabels([''])
-ax_11.set_ylabel('Prediction \n Error', fontsize=fontsize)
-
-ax_11.xaxis.set_tick_params(labelsize=fontsize)
-ax_11.yaxis.set_tick_params(labelsize=fontsize)
+ax_11.set_ylabel('Prediction \n Error')
 
 # Relative uncertainty, changepoint probability and learning rate
 ax_12 = plt.Subplot(f, gs_01[3, 0])
@@ -176,12 +174,9 @@ ax_12.plot(x, df_model['tau_t'][plot_range[0]:plot_range[1]], linewidth=2, color
 ax_12.plot(x, df_model['omega_t'][plot_range[0]:plot_range[1]], linewidth=2, color="#0c3c78", alpha=1)
 ax_12.plot(x, df_model['alpha_t'][plot_range[0]:plot_range[1]], linewidth=2, color="#de77ae", alpha=0.8)
 ax_12.legend(['RU', 'CPP', 'LR'], loc='upper left', bbox_to_anchor=(0.96, 1.2),
-             fontsize=fontsize - 1, handlelength=1)
-ax_12.set_xlabel('Trial', fontsize=fontsize)
-ax_12.set_ylabel('Variable', fontsize=fontsize)
-
-ax_12.xaxis.set_tick_params(labelsize=fontsize)
-ax_12.yaxis.set_tick_params(labelsize=fontsize)
+             fontsize=6, handlelength=1)
+ax_12.set_xlabel('Trial')
+ax_12.set_ylabel('Variable')
 f.align_ylabels()
 
 # -------------------------------------------------
@@ -203,24 +198,18 @@ f.add_subplot(ax_16)
 # Plot histogram of magnitudes on first column
 ax_13.hist(df_endquiz['anxiety_rating'], bins=15, color='#77AADD', edgecolor='black', alpha=0.7)
 
-ax_13.set_title("How anxious did the game \n make you feel?", fontsize=fontsize - 1, loc='center')
-
-ax_13.set_ylabel('Count', fontsize=fontsize)
-ax_13.set_xlabel('Anxiety Rating', fontsize=fontsize)
-ax_13.xaxis.set_tick_params(labelsize=fontsize)
-ax_13.yaxis.set_tick_params(labelsize=fontsize)
-
+ax_13.set_title("How anxious did the game \n make you feel?", fontsize=6, loc='center')
+ax_13.set_ylabel('Count')
+ax_13.set_xlabel('Anxiety Rating')
 ax_14.hist(df_endquiz['predator_rating'], bins=15, color='#77AADD', edgecolor='black', alpha=0.7)
-ax_14.set_title("How much did you want \n to avoid the predator?", fontsize=fontsize - 1, loc='center')
+ax_14.set_title("How much did you want \n to avoid the predator?", fontsize=6, loc='center')
 
-ax_14.set_ylabel('Count', fontsize=fontsize)
-ax_14.set_xlabel('Predator Rating', fontsize=fontsize)
-ax_14.xaxis.set_tick_params(labelsize=fontsize)
-ax_14.yaxis.set_tick_params(labelsize=fontsize)
+ax_14.set_ylabel('Count')
+ax_14.set_xlabel('Predator Rating')
 
 # Plot correlation with Sticsa
 r_IC, P_IC, t_IC = plot_x_vs_y_robust(df_endquiz, x='IC02', y='anxiety_rating', title=False, ax=ax_15, tstat=True,
-                                      xlabel='STICSA-T', ylabel='Anxiety Rating', fontsize=fontsize, color_index=-2,
+                                      xlabel='STICSA-T', ylabel='Anxiety Rating', color_index=-2,
                                       line_color_index=-1)
 if P_IC < 0.001:
     p_str = "$\it{p}$ < 0.001"
@@ -228,11 +217,11 @@ else:
     p_str = "$\it{p}$ = " + str(P_IC)
 
 title = "$\it{r}$ = " + str(r_IC) + ", " + p_str
-ax_15.set_title(title, fontsize=fontsize)
+ax_15.set_title(title)
 
 # Correlation with G-score (internalizing)
 r_g, P_g, t_g = plot_x_vs_y_robust(df_endquiz, x='g', y='anxiety_rating', title=False, ax=ax_16, tstat=True,
-                                   xlabel='General Factor', ylabel='Anxiety Rating', fontsize=fontsize, color_index=-2,
+                                   xlabel='General Factor', ylabel='Anxiety Rating', color_index=-2,
                                    line_color_index=-1)
 
 if P_g < 0.001:
@@ -240,7 +229,7 @@ if P_g < 0.001:
 else:
     p_str = "$\it{p}$ = " + str(P_IC)
 title = "$\it{r}$ = " + str(r_g) + ", " + p_str
-ax_16.set_title(title, fontsize=fontsize)
+ax_16.set_title(title)
 ax_16.xaxis.set_major_locator(ticker.MaxNLocator(nbins=3))
 
 # Calculate overall stats of questionnaires

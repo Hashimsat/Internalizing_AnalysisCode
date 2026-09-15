@@ -6,15 +6,19 @@ import numpy as np
 import pandas as pd
 import os
 import sys
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from functions.util_functions import qns_factor_preprocessing, cm2inch, label_subplots
+from functions.util_functions import qns_factor_preprocessing, latex_plt
 from scipy.stats import pearsonr
 
-# todo (rasmus): add updated latex_plt like for figure 1
+from allinpy import label_subplots, cm2inch
 
+# todo (rasmus): add updated latex_plt like for figure 1
+# Update matplotlib to use Latex and to change some defaults
+matplotlib = latex_plt(matplotlib, fontsize=7)
 # ------------
 # 1. Load data
 # ------------
@@ -68,7 +72,6 @@ pval_subset = pval.loc[['g', 'F1.', 'F2.'], df_subscale_score.columns[0:10]]
 
 fig_width = 15
 fig_height = 14
-fontsize = 7
 
 # Setup Figure
 f = plt.figure(figsize=cm2inch(fig_width, fig_height))
@@ -89,8 +92,7 @@ heatmap = sns.heatmap(correlation_matrix, cmap='coolwarm', cbar=False, annot=Fal
 # Add a colorbar with a smaller size
 colorbar = ax_0.figure.colorbar(heatmap.get_children()[0], ax=ax_0, shrink=0.4)
 colorbar.set_ticks([0, 0.5, 1])  # Optional: set specific ticks
-colorbar.ax.tick_params(labelsize=fontsize)  # Optional: adjust colorbar tick label size
-colorbar.set_label('Pearson Correlation', fontsize=fontsize)  # Add label to colorbar
+colorbar.set_label('Pearson Correlation')  # Add label to colorbar
 
 # Adjust colorbar size
 colorbar.ax.set_aspect(10, adjustable='box')  # Adjust the aspect ratio (height/width) of the colorbar
@@ -108,9 +110,8 @@ ax_0.set_xticks(center_indices)
 ax_0.set_yticks(center_indices)
 
 # Set the tick labels to the questionnaire labels
-ax_0.set_xticklabels(questionnaire_labels, rotation=45, fontsize=fontsize)
-ax_0.set_yticklabels(questionnaire_labels, rotation=0, fontsize=fontsize)
-# ax_0.set_xlabel('Questionnaire', fontsize=fontsize)
+ax_0.set_xticklabels(questionnaire_labels, rotation=45)
+ax_0.set_yticklabels(questionnaire_labels, rotation=0)
 
 # -----------------------
 # 6. Plot factor loadings
@@ -135,33 +136,33 @@ for idx, num_items in enumerate(num_items_per_questionnaire):
 
 factor_loadings['g'].plot(kind='bar', ax=ax_1, color=color_array, legend=False)
 tick_positions = np.arange(0, len(factor_loadings.index), 20)
-ax_1.set_title('General Factor', fontsize=fontsize, y=1.0, pad=1)
-ax_1.set_ylabel('Loading', fontsize=fontsize)
+ax_1.set_title('General Factor', y=1.0, pad=1)
+ax_1.set_ylabel('Loading')
 ax_1.set_ylim([-0.3, 0.7])
-ax_1.tick_params(axis='y', labelsize=fontsize)
+ax_1.tick_params(axis='y')
 ax_1.set_xticks(tick_positions)
-ax_1.set_xticklabels(factor_loadings.index[tick_positions], rotation=45, fontsize=fontsize)
+ax_1.set_xticklabels(factor_loadings.index[tick_positions], rotation=45)
 
 factor_loadings['F1.'].plot(kind='bar', ax=ax_2, color=color_array, legend=False)
-ax_2.set_title('Factor 1', fontsize=fontsize, y=1.0, pad=-3)
-ax_2.set_ylabel('Loading', fontsize=fontsize)
+ax_2.set_title('Factor 1', y=1.0, pad=-3)
+ax_2.set_ylabel('Loading')
 ax_2.set_ylim([-0.3, 0.7])
-ax_2.tick_params(axis='y', labelsize=fontsize)
+ax_2.tick_params(axis='y')
 ax_2.set_xticks(tick_positions)
-ax_2.set_xticklabels(factor_loadings.index[tick_positions], rotation=45, fontsize=fontsize)
+ax_2.set_xticklabels(factor_loadings.index[tick_positions], rotation=45)
 
 factor_loadings['F2.'].plot(kind='bar', ax=ax_3, color=color_array, legend=False)
-ax_3.set_title('Factor 2', fontsize=fontsize, y=1.0, pad=-3)
-ax_3.set_ylabel('Loading', fontsize=fontsize)
+ax_3.set_title('Factor 2', y=1.0, pad=-3)
+ax_3.set_ylabel('Loading')
 ax_3.set_ylim([-0.3, 0.7])
-ax_3.set_xlabel('Item Number', fontsize=fontsize)
+ax_3.set_xlabel('Item Number')
 ax_3.set_xticks(tick_positions)
-ax_3.set_xticklabels(factor_loadings.index[tick_positions], rotation=45, fontsize=fontsize)
-ax_3.tick_params(axis='y', labelsize=fontsize)
+ax_3.set_xticklabels(factor_loadings.index[tick_positions], rotation=45)
+ax_3.tick_params(axis='y')
 
 # Create custom legend
 handles = [plt.Line2D([0], [0], color=colors[i], lw=4) for i in range(len(colors))]
-ax_3.legend(handles, questionnaire_labels, fontsize=fontsize - 1, loc='upper center', bbox_to_anchor=(0.5, -1.05),
+ax_3.legend(handles, questionnaire_labels, fontsize=6, loc='upper center', bbox_to_anchor=(0.5, -1.05),
             ncol=4, handlelength=1)
 
 # ------------------------------------------------------------------------
@@ -175,22 +176,22 @@ gs_03 = gridspec.GridSpecFromSubplotSpec(1, 1, subplot_spec=gs_0[5:7, 0:6])
 ax_4 = plt.Subplot(f, gs_03[0, 0])
 f.add_subplot(ax_4)
 
-heatmap_ts = sns.heatmap(correlation_subset, annot=True, fmt='.2f', annot_kws={'size': fontsize},
+heatmap_ts = sns.heatmap(correlation_subset, annot=True, fmt='.2f',
                          cmap=sns.diverging_palette(220, 10, as_cmap=False), cbar=False, ax=ax_4,
                          linewidths=0.5, linecolor='black', clip_on=False, )
 
 # Add a colorbar with a smaller size
 colorbar = ax_4.figure.colorbar(heatmap_ts.get_children()[0], ax=ax_4, shrink=1)
 colorbar.ax.set_aspect(10, adjustable='box')
-colorbar.ax.tick_params(labelsize=fontsize)  # Optional: adjust colorbar tick label size
-colorbar.set_label('Pearson Correlation', fontsize=fontsize, labelpad=5)  # Add label to colorbar
+#colorbar.ax.tick_params(labelsize=fontsize)  # Optional: adjust colorbar tick label size
+colorbar.set_label('Pearson Correlation', labelpad=5)  # Add label to colorbar
 
-ax_4.set_xticklabels(questionnaire_subscale_labels, rotation=45, fontsize=fontsize)
-ax_4.set_yticklabels(['G', 'F1', 'F2'], rotation=0, fontsize=fontsize)
+ax_4.set_xticklabels(questionnaire_subscale_labels, rotation=45)
+ax_4.set_yticklabels(['G', 'F1', 'F2'], rotation=0)
 
 # Add labels
 texts = ['a', ' ', 'b', ' ', ' ', 'c', '']
-label_subplots(f, texts, x_offset=0.085, y_offset=0.02, fontsize=fontsize)
+label_subplots(f, texts, x_offset=0.085, y_offset=0.02)  # todo: update on allinpy with fontsize
 
 sns.despine()
 
