@@ -20,12 +20,16 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing
-from functions.predator_descriptive_functions import (EstimationError_overall, PerseverationRate_overall,
+from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing, latex_plt
+from functions.predator_descriptive_functions import (estimation_error_overall, PerseverationRate_overall,
                                                       zscore_columns, SingleTrialLR_overall, RT_InitConf_overall,
                                                       combine_descriptive_with_factor_scores)
 from functions.LR_bins_internalizing import learning_rate_descriptive_internalizing
 from functions.plotting_functions import plot_x_vs_y_FactorScores_robust, plot_descriptive_boxplots
+
+# Todo: use allinpy version after update
+fontsize = 7
+matplotlib = latex_plt(matplotlib, fontsize=fontsize)
 
 # Turn interactive mode on
 plt.ion()
@@ -47,7 +51,7 @@ factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_
 
 df_qns, df_fs, df_merged = qns_factor_preprocessing(qns_totalscore, factor_scores)
 
-# get subjects that completed the predator task
+# Get subjects that completed the predator task
 Subjects_predator_init = pd.unique(df_predator['subjectID'])
 # Remove elements that are NaN or 'nan'
 Subjects_predator_init = [subj for subj in Subjects_predator_init if
@@ -56,7 +60,7 @@ Subjects_predator_init = [subj for subj in Subjects_predator_init if
 # Filter the factor score df based on the list of subjects
 df_merged = df_merged[df_merged['subjectID'].isin(Subjects_predator_init)]
 
-# standardize age, g and f scores
+# Standardize age, g and f scores
 columns_to_zscore = ['g', 'Age', 'F1.', 'F2.']
 df_merged = zscore_columns(df_merged, columns_to_zscore)
 
@@ -68,7 +72,7 @@ std_val = df_merged['g_z'].std()
 df_merged['G_Category'] = pd.np.where(df_merged['g_z'] > mean_val, 'High',
                                       pd.np.where(df_merged['g_z'] < mean_val, 'Low', 'Normal'))
 
-# merge with predator data
+# Merge with predator data
 df_predator_merge = df_predator.merge(df_merged, on='subjectID')
 Subjects = pd.unique(df_predator_merge['subjectID'])
 
@@ -77,7 +81,7 @@ Subjects = pd.unique(df_predator_merge['subjectID'])
 # ---------------------------------
 
 # Compute mean estimation errors for each subject across blocks
-df_EE = EstimationError_overall(df_predator_merge, Subjects)
+df_EE = estimation_error_overall(df_predator_merge, Subjects)
 df_EE_merged, df_EE_merged_LowHighAnx = combine_descriptive_with_factor_scores(df_EE, df_merged, lowhighanx=True)
 
 # Compute median LR for each subject
@@ -88,7 +92,7 @@ df_LR_merged, df_LR_merged_LowHighAnx = combine_descriptive_with_factor_scores(d
 df_pers = PerseverationRate_overall(df_predator_merge, Subjects)
 df_pers_merged, df_pers_merged_LowHighAnx = combine_descriptive_with_factor_scores(df_pers, df_merged, lowhighanx=True)
 
-# Compute median initiaiton RT for each subject
+# Compute median initiation RT for each subject
 df_RT_init, _ = RT_InitConf_overall(df_predator_merge, Subjects)
 df_RT_merged, df_RT_merged_LowHighAnx = combine_descriptive_with_factor_scores(df_RT_init, df_merged, lowhighanx=True)
 
@@ -102,7 +106,6 @@ n_highG = len(pd.unique(df_LR_merged_LowHighAnx[df_LR_merged_LowHighAnx['G_Categ
 # Create figure
 fig_width = 15
 fig_height = 10
-fontsize = 7
 
 colors = ["#80cdc1", '#de77ae', "#dfc27d", "#018571"]
 sns.set_palette(sns.color_palette(colors))
@@ -180,7 +183,7 @@ f.add_subplot(ax5)
                                                                                           min_val=-0.1, max_val=1,
                                                                                           stat='ttest_ind')
 
-# RT initiaion vs HighLowInternalizing
+# RT initiation vs HighLowInternalizing
 ax6 = plt.Subplot(f, gs_0[1, 3])
 f.add_subplot(ax6)
 

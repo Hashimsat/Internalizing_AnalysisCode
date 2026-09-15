@@ -1,40 +1,70 @@
-# Function for descriptive analysis of predator task data
-
-# Load libraries
+# Functions for descriptive analysis of predator task data
 
 import numpy as np
 import pandas as pd
 from scipy.stats import zscore
 from functions.util_functions import circular_distance, CircularDistance_Array, BoundLR, safe_div_list
 
-def calculate_estimation_error(df):
-    """Calculate the estimation error for a given block of data."""
+# todo: can't we use the circ stats toolbox?
+def calculate_estimation_error(df: pd.DataFrame) -> float:
+    """Calculate the estimation error for a given block of data.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Task data.
+
+    Returns
+    -------
+    float
+        Computed estimation error.
+    """
+
+    # Select valid trials
     df_torchmoved = df[df['torchMoved'] == 1]
-    EE = CircularDistance_Array(
+
+    # Compute estimation error
+    ee = CircularDistance_Array(
         df_torchmoved['PredatorMean'].to_numpy(),
         df_torchmoved['torchAngle'].to_numpy()
     )
-    return np.nanmean(np.abs(EE))
+    return np.nanmean(np.abs(ee))
 
-def EstimationError_overall(df,Subjects):
-    """Calculate mean Estimation Error (EE) for each subject across blocks"""
+def estimation_error_overall(df: pd.DataFrame, subjects: np.ndarray) -> pd.DataFrame:
+    """Calculate mean estimation error for each subject across blocks.
 
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Predator data.
+    subjects : np.ndarray
+        Subject IDs.
+
+    Returns
+    -------
+    pd.DataFrame
+        Computed estimation errors.
+    """
+
+    # Initialize variables
     subj_list = []
-    EE_overall = np.full(len(Subjects), np.nan)  # 4 blocks in total for each task
+    ee_overall = np.full(len(subjects), np.nan)  # 4 blocks in total for each task
 
-    for subjIndex, subj in enumerate(Subjects):
+    # Cycle over subjects
+    for subjIndex, subj in enumerate(subjects):
 
         subj_list.append(subj)
         df_block = df[df['subjectID'] == subj]
-        EE_overall[subjIndex] = calculate_estimation_error(df_block)
+        ee_overall[subjIndex] = calculate_estimation_error(df_block)
 
-    # create a dataframe of Estimation Error across all blocks
-    df_EE = create_dataframe(EE_overall, 'EE', subj_list)
-    df_EE = df_EE.dropna()
+    # Create a dataframe of Estimation Error across all blocks
+    df_ee = create_dataframe(ee_overall, 'EE', subj_list)
+    df_ee = df_ee.dropna()
 
-    return df_EE
+    return df_ee
 
-def EstimationError(df,Subjects, BlockName='BlockVersion'):
+# Todo: can this be merged with estimation_error_overall?
+def EstimationError(df, Subjects, BlockName='BlockVersion'):
     """Calculate mean Estimation Error (EE) for each subject in each block"""
 
     Blocks = np.sort(pd.unique(df[BlockName])).astype(int)
@@ -47,19 +77,38 @@ def EstimationError(df,Subjects, BlockName='BlockVersion'):
             df_block = df[(df['subjectID'] == subj) & (df[BlockName] == b)]
             EE_overall[subjIndex, b] = calculate_estimation_error(df_block)
 
-    # create a dataframe of Estimation Error across all blocks
+    # Create a dataframe of Estimation Error across all blocks
     df_EE = create_dataframe(EE_overall, ['EE_B' + str(b) for b in Blocks],subj_list)
-    # df_EE['subjectID'] = subj_list
     df_EE = df_EE.dropna()
 
     return df_EE
 
-def create_dataframe(data, column_name, subj_list):
-    """Create a DataFrame for the given data and subject list."""
+def create_dataframe(data: np.ndarray, column_name: str, subj_list: list) -> pd.DataFrame:
+    """Create a DataFrame for the given data and subject list.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Data to turn into the DataFrame.
+    column_name : str
+        ColumnName for the DataFrame.
+    subj_list : list
+        Subject IDs as a standard column of the DataFrame.
+
+    Returns
+    -------
+    pd.DataFrame
+        Newly created DataFrame.
+
+    """
+
+    # Create a DataFrame for the given data
     df = pd.DataFrame(data=data, columns=[column_name])
     df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
 
+    # Add subject ID as a standard column
     df['subjectID'] = subj_list
+
     return df
 
 def process_updates_and_pe(df_subj):
@@ -197,21 +246,43 @@ def PerseverationRate_overall(df, Subjects):
         TotalTrials[subjIndex] = len(df_subj)
 
     # calculate percentage perseveration
-    PercentagePerseveration = (PerseverationRate / (TotalTrials - 1));
+    PercentagePerseveration = (PerseverationRate / (TotalTrials - 1))
 
     df_pers = create_dataframe(PercentagePerseveration, 'Pers', subjList)
 
     return df_pers
 
 
-def RT_InitConf_overall(df, Subjects):
-    """Calculate median reaction time for initiation and confirmation for each subject."""
+def RT_InitConf_overall(df: pd.DataFrame, Subjects: np.ndarray) -> tuple:
+    """Calculate median reaction time for initiation and confirmation for each subject.
+
+    This function processes a DataFrame of reaction times for multiple subjects,
+    calculating the median reaction time for both initiation and confirmation actions.
+    The results are stored in separate DataFrames for initiation and confirmation
+    reaction times.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input data containing reaction times and subject IDs.
+    Subjects : np.ndarray
+        Array of unique subject IDs for which the reaction times are to be calculated.
+
+    Returns
+    -------
+    tuple of pd.DataFrame
+        A tuple containing two DataFrames:
+        - The first DataFrame contains median initiation reaction times for each subject.
+        - The second DataFrame contains median confirmation reaction times for each subject.
+    """
+
 
     # Initialize arrays and subject list
     RT_init = np.full(len(Subjects), np.NaN)
     RT_conf = np.full(len(Subjects), np.NaN)
     subjList = []
 
+    # Cycle over subjects
     for subjIndex, subj in enumerate(Subjects):
         subjList = np.append(subjList, subj)
 
@@ -227,13 +298,34 @@ def RT_InitConf_overall(df, Subjects):
     return df_init, df_conf
 
 
-def combine_descriptive_with_factor_scores(df, df_fs, lowhighanx=False):
-    """Combine descriptive statistics with questionnaire data."""
+def combine_descriptive_with_factor_scores(df: pd.DataFrame, df_fs: pd.DataFrame, lowhighanx: bool=False) -> pd.DataFrame:
+    """Combine descriptive statistics with questionnaire data.
 
+    Parameters
+    ----------
+    df : pd.DataFrame
+        A DataFrame containing the descriptive statistics.
+    df_fs : pd.DataFrame
+        A DataFrame containing the factor scores.
+    lowhighanx : bool, default=False
+        A flag indicating whether to extract and return an additional
+        subset of the merged DataFrame for subjects categorized as
+        "High" and "Low" in anxiety.
+
+    Returns
+    -------
+    pd.DataFrame or tuple of pd.DataFrame
+        Returns the merged DataFrame. If `lowhighanx` is True, returns a
+        tuple where the first element is the full merged DataFrame and the
+        second is the subset for "High" and "Low" anxiety categories.
+    """
+
+
+    # Combine the two DataFrames
     df_combined = df.merge(df_fs, on='subjectID')
 
     # Convert to DataFrame
-    df_combined = pd.DataFrame(df_combined)
+    df_combined = pd.DataFrame(df_combined)  # todo: is this necessary?
     df_combined_LowHighAnx = df_combined[df_combined['G_Category'].isin(['High', 'Low'])]
 
     if lowhighanx:
@@ -243,7 +335,24 @@ def combine_descriptive_with_factor_scores(df, df_fs, lowhighanx=False):
         return df_combined
 
 # Helper function to z-score columns
-def zscore_columns(df, columns):
+def zscore_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
+    """Compute z-scores for specified columns and append them to the DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input DataFrame containing the data for which Z-scores are computed.
+    columns : list
+        List of column names (as strings) in the DataFrame for which to compute
+        the z-scores.
+
+    Returns
+    -------
+    pd.DataFrame
+        The input DataFrame with additional columns containing the calculated
+        z-scores for the specified columns.
+
+    """
     for col in columns:
         # Replace '.' in column names with '_' for the z-scored column
         col_z = col.replace('.', '') + '_z'
