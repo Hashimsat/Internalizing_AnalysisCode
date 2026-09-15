@@ -1,6 +1,20 @@
 # plot showing predator task and model figure, along with motivation and anxiety questionnaire results
 # Environment: predator_task_env
 
+import os
+import platform
+import matplotlib
+
+system = platform.system()
+
+# Simple cross-platform backend selection
+if platform.system() == "Linux" and not os.environ.get("DISPLAY"):
+    matplotlib.use("Agg")  # headless
+elif platform.system() == "Darwin":
+    matplotlib.use("MacOSX")  # macOS native
+else:
+    matplotlib.use("Qt5Agg")  # Linux with display, Windows, others
+
 from PIL import Image
 from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
 import numpy as np
@@ -17,9 +31,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import CircularDistance_Array, cm2inch, label_axes, add_text, compute_median_iqr
 from functions.plotting_functions import plot_x_vs_y_robust
 
-# -----------------
+# Turn on interactive mode
+plt.ion()
+
+# ------------
 # 1. Load data
-# -----------------
+# ------------
+
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 figure_folder = base_dir + "/figures/"
 img_path = base_dir + "/figures/generated_anims/Full_figure_noText.png"
@@ -28,24 +46,24 @@ df_model = pd.read_csv(os.path.join(base_dir, 'data/predator_task/sim_df_bayesia
 df_endquiz = pd.read_csv(os.path.join(base_dir, 'data/predator_task/predator_endquiz_data.csv'))
 factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_scores.csv'))
 
-# -----------------
+# ------------------
 # 2. Preprocess data
-# -----------------
+# ------------------
 
 # Preprocess endquiz scores and merge with factor scores
 df_endquiz = df_endquiz.rename(columns={'SD01_01': 'Age', 'SD02': 'Gender'})
 df_factor = factor_scores.rename(columns={'V1': 'subjectID'})
 
-# remove participants with non-binary gender due to insufficient participants for control
+# Remove participants with non-binary gender due to insufficient participants for control
 df_endquiz = df_endquiz[df_endquiz['Gender'] != 3]
 
-# merge with factor scores
+# Merge with factor scores
 df_endquiz = df_endquiz.merge(df_factor, on='subjectID')
 df_endquiz['g_z'] = zscore(df_endquiz['g'])
 df_endquiz['IC02_z'] = zscore(df_endquiz['IC02'])
 
 # -----------------
-# 2. Prepare figure
+# 3. Prepare figure
 # -----------------
 
 # Size of figure
@@ -64,7 +82,7 @@ colors = ["#80cdc1", '#a17ab1', "#dfc27d", "#018571"]
 sns.set_palette(sns.color_palette(colors))
 
 # ----------------------------
-# 3. Plot task trial schematic
+# 4. Plot task trial schematic
 # ----------------------------
 
 # Create subplot grid and axis
@@ -82,10 +100,7 @@ cell_x1 = 0.2
 image_y = 0.3
 image_x = 0.42
 
-# Initialize text coordinates
-text_y_dist = [0.1, 0.22, 0.22, 0.1]
-text_pos = 'left_below'
-
+# Todo (more minor): For exact placement of text, we should import single images
 # Open image
 img = Image.open(img_path)
 
@@ -116,7 +131,7 @@ add_text(f, imagebox, image_x + 0.25, image_y - 0.4, ax_0, 'Update\n(max. 5s)', 
 ax_0.axis('off')
 
 # --------------------------------------------
-# 4. Plot block example and model computations
+# 5. Plot block example and model computations
 # --------------------------------------------
 
 # Create subplot grid
@@ -169,9 +184,10 @@ ax_12.xaxis.set_tick_params(labelsize=fontsize)
 ax_12.yaxis.set_tick_params(labelsize=fontsize)
 f.align_ylabels()
 
-# -------------------------------------
-# 5. Add anxiety and predator ratings on 2nd column
-# ----------------------------------
+# -------------------------------------------------
+# 6. Add anxiety and predator ratings on 2nd column
+# -------------------------------------------------
+
 # Create subplot grid
 gs_11 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs_0[0:3, 1:], hspace=0.6, wspace=0.8)
 ax_13 = plt.Subplot(f, gs_11[0, 1])
@@ -206,7 +222,12 @@ ax_14.yaxis.set_tick_params(labelsize=fontsize)
 r_IC, P_IC, t_IC = plot_x_vs_y_robust(df_endquiz, x='IC02', y='anxiety_rating', title=False, ax=ax_15, tstat=True,
                                       xlabel='STICSA-T', ylabel='Anxiety Rating', fontsize=fontsize, color_index=-2,
                                       line_color_index=-1)
-title = "$\it{r}$ = " + str(r_IC) + ", $\it{p}$ < 0.001 "
+if P_IC < 0.001:
+    p_str = "$\it{p}$ < 0.001"
+else:
+    p_str = "$\it{p}$ = " + str(P_IC)
+
+title = "$\it{r}$ = " + str(r_IC) + ", " + p_str
 ax_15.set_title(title, fontsize=fontsize)
 
 # Correlation with G-score (internalizing)
@@ -214,12 +235,15 @@ r_g, P_g, t_g = plot_x_vs_y_robust(df_endquiz, x='g', y='anxiety_rating', title=
                                    xlabel='General Factor', ylabel='Anxiety Rating', fontsize=fontsize, color_index=-2,
                                    line_color_index=-1)
 
-title = "$\it{r}$ = " + str(r_g) + ", $\it{p}$ < 0.001 "
+if P_g < 0.001:
+    p_str = "$\it{p}$ < 0.001"
+else:
+    p_str = "$\it{p}$ = " + str(P_IC)
+title = "$\it{r}$ = " + str(r_g) + ", " + p_str
 ax_16.set_title(title, fontsize=fontsize)
 ax_16.xaxis.set_major_locator(ticker.MaxNLocator(nbins=3))
 
-# Calculate overall stats
-# calculate overall stats of questionaires
+# Calculate overall stats of questionnaires
 mean_anxiety = np.mean(df_endquiz['anxiety_rating'])
 std_anxiety = np.std(df_endquiz['anxiety_rating'])
 median_anxiety, anxiety_iqi = compute_median_iqr(df_endquiz['anxiety_rating'])
@@ -231,31 +255,34 @@ median_predator, predator_iqi = compute_median_iqr(df_endquiz['predator_rating']
 # Delete unnecessary axes
 sns.despine()
 
-# plt.tight_layout()
 # -------------------------------------
-# 5. Add subplot labels and save figure
+# 7. Add subplot labels and save figure
 # -------------------------------------
 
-# add labels for a and b
+# Add labels for a
 texts = ['a']
 label_axes(f, [ax_0], texts, x_offset=0.085, y_offset=0.06, fontsize=fontsize)
 
+# Add labels for b
 texts = ['b']
 label_axes(f, [ax_10, ], texts, x_offset=0.085, y_offset=0.04, fontsize=fontsize)
 
+# Add labels for c and d
 texts = ['c', 'd']
 label_axes(f, [ax_14, ax_13], texts, x_offset=0.065, y_offset=0.06, fontsize=fontsize)
 
-# add labels to bottom row
+# Add labels for e and f
 texts = ['e', 'f']
 label_axes(f, [ax_15, ax_16], texts, x_offset=0.065, y_offset=0.04, fontsize=fontsize)
 
+# Save figure
 name = 'figure_3_predator_task.pdf'
 savename = os.path.join(figure_folder, name)
 plt.savefig(savename, format='pdf', dpi=700, transparent=True)
+plt.ioff()
 plt.show()
 
-# create a dictionary for stats
+# Create a dictionary for stats
 stats = {
     'Statistic': ['mean_anx', 'std_anx', 'median_anx', 'anx_25', 'anx_75',
                   'mean_predator', 'std_predator', 'median_predator', 'pred_25', 'pred_75',
@@ -268,5 +295,4 @@ stats = {
                r_g, P_g, t_g,
                len(df_endquiz)]
 }
-
 print(stats)
