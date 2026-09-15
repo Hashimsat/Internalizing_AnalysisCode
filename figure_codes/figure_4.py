@@ -20,7 +20,7 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing
+from functions.util_functions import cm2inch, label_subplots, qns_factor_preprocessing, latex_plt
 from functions.predator_descriptive_functions import (Estimation_Error, PerseverationRate_overall, zscore_columns, Single_Trial_LR, RT_InitConf_overall,
                                                       combine_descriptive_with_factor_scores)
 from functions.LR_bins_internalizing import learning_rate_descriptive_internalizing

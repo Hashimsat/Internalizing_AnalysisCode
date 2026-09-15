@@ -29,10 +29,10 @@ def calculate_estimation_error(df: pd.DataFrame) -> float:
         df_torchmoved['torchAngle'].to_numpy()
     )
 
-    # add a warning if number of nans in EE is more than 10% of the total number of trials
-    EE = remove_nans_from_array(EE)
+    # Add a warning if number of nans in EE is more than 10% of the total number of trials
+    ee = remove_nans_from_array(ee)
 
-    return np.mean(np.abs(EE))
+    return np.mean(np.abs(ee))
 
 
 def Estimation_Error(df, subjects, block_name=None):
