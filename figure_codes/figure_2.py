@@ -13,9 +13,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from functions.util_functions import qns_factor_preprocessing, cm2inch, label_subplots
 from scipy.stats import pearsonr
 
-# -----------------
+# todo (rasmus): add updated latex_plt like for figure 1
+
+# ------------
 # 1. Load data
-# -----------------
+# ------------
 
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 qns_itemdata = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/questionnaires_itemdata.csv'), sep=';')
@@ -24,9 +26,10 @@ factor_scores = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_
 factor_loadings = pd.read_csv(os.path.join(base_dir, 'data/factor_analysis/factor_loadings.csv'))
 
 figure_folder = base_dir + '/figures/'
-# -----------------
+
+# ---------------------------------
 # 2. Preprocess qns and factor data
-# -----------------
+# ---------------------------------
 
 df_qns, df_fs, df_merged = qns_factor_preprocessing(qns_totalscore, factor_scores)
 
@@ -35,9 +38,9 @@ qns_pure = qns_itemdata.drop(columns=['REF', 'Unnamed: 0'])
 columns_to_remove = qns_pure.filter(like='IG').columns
 qns_pure = qns_pure.drop(columns=columns_to_remove)
 
-# -----------------
+# -----------------------
 # 3. Compute correlations
-# -----------------
+# -----------------------
 
 # Correlation between qns items
 correlation_matrix = qns_pure.corr()
@@ -71,9 +74,9 @@ fontsize = 7
 f = plt.figure(figsize=cm2inch(fig_width, fig_height))
 gs_0 = gridspec.GridSpec(7, 6, wspace=2.4, hspace=0.8, top=0.95, bottom=0.15, left=0.09, right=.97)
 
-# -----------------
+# --------------------------------------
 # 5. Plot correlations between qns items
-# -----------------
+# --------------------------------------
 
 # Plot correlations between qns items
 gs_00 = gridspec.GridSpecFromSubplotSpec(4, 3, subplot_spec=gs_0[0:4, 0:3])
@@ -109,10 +112,9 @@ ax_0.set_xticklabels(questionnaire_labels, rotation=45, fontsize=fontsize)
 ax_0.set_yticklabels(questionnaire_labels, rotation=0, fontsize=fontsize)
 # ax_0.set_xlabel('Questionnaire', fontsize=fontsize)
 
-
-# -----------------
+# -----------------------
 # 6. Plot factor loadings
-# -----------------
+# -----------------------
 
 gs_01 = gridspec.GridSpecFromSubplotSpec(3, 3, subplot_spec=gs_0[0:4, 3:6], hspace=1)
 ax_1 = plt.Subplot(f, gs_01[0, 0:3])
@@ -162,9 +164,10 @@ handles = [plt.Line2D([0], [0], color=colors[i], lw=4) for i in range(len(colors
 ax_3.legend(handles, questionnaire_labels, fontsize=fontsize - 1, loc='upper center', bbox_to_anchor=(0.5, -1.05),
             ncol=4, handlelength=1)
 
-# -----------------
+# ------------------------------------------------------------------------
 # 7. Plot correlation between factor scores and questionnaire total scores
-# -----------------
+# ------------------------------------------------------------------------
+
 questionnaire_subscale_labels = ['STAI-S', 'STAI-anx', 'STAI-dep', 'STICSA-cog', 'STICSA-som', 'BDI', 'IUS-27', 'PSWQ',
                                  'MASQ-ad', 'MASQ-aa']
 
@@ -191,9 +194,9 @@ label_subplots(f, texts, x_offset=0.085, y_offset=0.02, fontsize=fontsize)
 
 sns.despine()
 
-# -----------------
+# --------------
 # 8. Save figure
-# -----------------
+# --------------
 
 name = 'figure_2_fa' + '.pdf'
 savename = os.path.join(figure_folder, name)
