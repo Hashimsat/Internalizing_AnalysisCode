@@ -5,19 +5,19 @@
 import numpy as np
 import pandas as pd
 from rbmpy.utilities import circ_dist
+from rbmpy import AgentVars, AlAgent
 
 
-def task_agent_int(df, agent, agent_vars, sim=False):
-    """
-        Models the interaction between the task and the agent (Reduced Bayesian Model).
+def task_agent_int(df: pd.DataFrame, agent: AlAgent, agent_vars: AgentVars, sim=False) -> pd.DataFrame:
+    """Models the interaction between the task and the agent (Reduced Bayesian Model).
 
         Parameters
         ----------
         df : pandas.DataFrame
             Data frame containing relevant data for the task.
-        agent : AgentClass
+        agent : Agent
             Instance of the agent class, which includes the `learn` method.
-        agent_vars : AgentVarsClass
+        agent_vars : AgentVars
             Instance of the agent variables class, containing initialization parameters
         sim : bool, optional
             Indicates whether the function is used for simulations (default is False).
@@ -31,11 +31,10 @@ def task_agent_int(df, agent, agent_vars, sim=False):
     # Extract and initialize relevant variables
     # -----------------------------------------
     n_trials = len(df)  # number of trials
-
     mu = np.full([n_trials], np.nan)  # inferred mean of the outcome-generating distribution
     mu_bias = np.full([n_trials], np.nan)  # inferred mean with bucket bias
     a_hat = np.full(n_trials, np.nan)  # predicted update according to reduced Bayesian model
-    omega = np.full(n_trials, np.nan)  # changepoint probability
+    omega = np.full(n_trials, np.nan)  # change-point probability
     tau = np.full(n_trials, np.nan)  # relative uncertainty
     alpha = np.full(n_trials, np.nan)  # learning rate
     actual_update = np.full(n_trials, np.nan)  # actual update by participant in the game
@@ -66,11 +65,10 @@ def task_agent_int(df, agent, agent_vars, sim=False):
                 agent.h = 0.10  # using the empirical hazard rate
             elif df['HazardLevel'][t] == 1:
                 agent.h = 0.16
-
         else:
             agent.h = 0.1
 
-        # compute actual participant update on each trial
+        # Compute actual participant update on each trial
         actual_update[t] = circ_dist(np.deg2rad(df['torchAngle'][t + 1]), np.deg2rad(df['torchAngle'][t]))
 
         # For first trial of new block

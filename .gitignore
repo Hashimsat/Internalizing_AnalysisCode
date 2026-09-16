@@ -2,3 +2,7 @@
 .idea/
 
 functions/__pycache__/
+
+tests/__pycache__/
+
+predator_rbm_model/__pycache__/
