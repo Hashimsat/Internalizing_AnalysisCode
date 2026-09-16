@@ -27,9 +27,9 @@ base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 figure_folder = base_dir + '/figures/'
 
 # Load model data and behavioral data
-model_data = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Overall.csv'))
-model_data_shocks = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Shock.csv'))
-model_data_screams = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Scream.csv'))
+model_data = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Overall.csv'), sep=';')
+model_data_shocks = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Shock.csv'), sep=';')
+model_data_screams = pd.read_csv(os.path.join(base_dir, 'data/lab_study/model_PEAlphaValence_Scream.csv'), sep=';')
 
 df_predator = pd.read_csv(os.path.join(base_dir, 'data/lab_study/df_predator_exp7.csv'))
 

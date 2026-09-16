@@ -125,32 +125,33 @@ def PerseverationRate_overall(df, Subjects):
     """Compute perseveration rate for each subject."""
 
     # Initialize arrays and subject list
-    PerseverationRate = np.full(len(Subjects), np.NaN)
-    TotalTrials = np.full(len(Subjects), np.NaN)
-    subjList = []
 
-    for subjIndex, subj in enumerate(Subjects):
-        subjList = np.append(subjList, subj)
-        df_subj = df.loc[(df['subjectID'] == subj) ]
-        PresNumber = 0
+    df_sub = df[df['subjectID'].isin(Subjects)].copy()
 
-        for i in range(len(df_subj) - 1):
+    # Previous trial's torch angle
+    prev_angle = df_sub.groupby('subjectID')['torchAngle'].shift(1)
 
-            if (
-                    (df_subj['torchAngle'].iloc[i + 1] <= df_subj['torchAngle'].iloc[i] + 2.5)
-                    & (df_subj['torchAngle'].iloc[i + 1] >= df_subj['torchAngle'].iloc[i] - 2.5)
-                    & (df_subj['torchMoved'].iloc[i + 1] == 1)
-            ):  # (does not include no movement trials, and provides a range of 5 degrees around previous location)
+    # Perseveration: moved on current trial and stayed within ±2.5° of previous angle
+    is_perseveration = (
+        df_sub['torchMoved'].eq(1)
+        & df_sub['torchAngle'].between(prev_angle - 2.5, prev_angle + 2.5)
+    )
 
-                PresNumber += 1 # count number of perseveration trials
+    # Count perseveration trials and total trials per subject
+    pers_count = is_perseveration.groupby(df_sub['subjectID']).sum()
+    total_trials = df_sub.groupby('subjectID').size()
 
-        PerseverationRate[subjIndex] = PresNumber
-        TotalTrials[subjIndex] = len(df_subj)
+    # Calculate rate: perseveration trials / possible transitions
+    pers_rate = pers_count / (total_trials - 1)
 
-    # calculate percentage perseveration
-    PercentagePerseveration = (PerseverationRate / (TotalTrials - 1));
+    # Preserve the order of Subjects
+    pers_rate = pers_rate.reindex(Subjects)
 
-    df_pers = create_dataframe(PercentagePerseveration, 'Pers', subjList)
+    df_pers =  create_dataframe(
+        pers_rate.to_numpy(),
+        'Pers',
+        np.asarray(Subjects)
+    )
 
     return df_pers
 
@@ -315,25 +316,21 @@ def RT_InitConf_overall(df: pd.DataFrame, Subjects: np.ndarray) -> tuple:
         - The second DataFrame contains median confirmation reaction times for each subject.
     """
 
+    # Calculate subject-level median RTs
+    df_rts = (
+        df.groupby('subjectID')[['RTInitiation', 'RTConfirmation']]
+        .median()
+        .reset_index()
+    )
 
-    # Initialize arrays and subject list
-    RT_init = np.full(len(Subjects), np.NaN)
-    RT_conf = np.full(len(Subjects), np.NaN)
-    subjList = []
+    # Create separate DataFrames
+    df_init = df_rts[['subjectID', 'RTInitiation']].rename(
+        columns={'RTInitiation': 'RT'}
+    )
 
-    # Cycle over subjects
-    for subjIndex, subj in enumerate(Subjects):
-        subjList = np.append(subjList, subj)
-
-        df_subj = df.loc[(df['subjectID'] == subj) ]
-
-        # Remove nans and claculate median
-        RT_init[subjIndex] = np.median(remove_nans_from_array(df_subj['RTInitiation'].to_numpy()))
-        RT_conf[subjIndex] = np.median(remove_nans_from_array(df_subj['RTConfirmation'].to_numpy()))
-
-    # Create DataFrames
-    df_init = create_dataframe(RT_init, 'RT', subjList)
-    df_conf = create_dataframe(RT_conf, 'RT', subjList)
+    df_conf = df_rts[['subjectID', 'RTConfirmation']].rename(
+        columns={'RTConfirmation': 'RT'}
+    )
 
     return df_init, df_conf
 

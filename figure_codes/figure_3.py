@@ -217,9 +217,6 @@ text_ic = "< 0.001" if P_IC < 0.001 else f"= {P_IC:.3f}"
 title = "$\it{r}$ = " + str(r_IC) + ", $\it{p}$ " + text_ic
 ax_15.set_title(title, fontsize=fontsize)
 
-title = "$\it{r}$ = " + str(r_IC) + ", " + p_str
-ax_15.set_title(title)
-
 # Correlation with G-score (internalizing)
 r_g, P_g, t_g = plot_x_vs_y_robust(df_endquiz, x='g', y='anxiety_rating', title=False, ax=ax_16, tstat=True,
                                    xlabel='General Factor', ylabel='Anxiety Rating', color_index=-2,
